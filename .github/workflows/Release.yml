@@ -243,13 +243,13 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
-          curl -JOL https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          curl -JOL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod a+x appimagetool-x86_64.AppImage
           mkdir -p ${GITHUB_WORKSPACE}/bin
           mv appimagetool-x86_64.AppImage ${GITHUB_WORKSPACE}/bin/appimagetool
           echo ::add-path::${GITHUB_WORKSPACE}/bin
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xorg-dev libfuse2
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev libfuse2 locate
 
       - name: Install hover (desktop)
         if: steps.check_asset.outputs.skip_build != 'true' && ( matrix.config.target == 'linux' || matrix.config.target == 'windows' || matrix.config.target == 'macos')
