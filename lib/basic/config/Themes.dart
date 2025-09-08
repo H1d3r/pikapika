@@ -48,8 +48,7 @@ Future<void> inputFont(BuildContext context) async {
     src: "$_fontFamily",
     title: tr("settings.font.title"),
     hint: tr("settings.font.hint"),
-    desc:
-        tr("settings.font.input_hint"),
+    desc: tr("settings.font.input_hint"),
   );
   if (font != null) {
     await method.saveProperty(_fontFamilyProperty, font);
@@ -146,6 +145,38 @@ class _OriginTheme extends _ThemePackage {
 
   @override
   ThemeData themeData(ThemeData rawData) => rawData;
+
+  @override
+  bool isDark() => false;
+}
+
+class _BookTheme extends _ThemePackage {
+  @override
+  String code() => "book";
+
+  @override
+  String name() => tr("settings.theme.book");
+
+  @override
+  ThemeData themeData(ThemeData rawData) => rawData.copyWith(
+        brightness: Brightness.dark,
+        appBarTheme: AppBarTheme(
+          elevation: 0,
+          foregroundColor: Colors.grey.shade700,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+          color: Colors.transparent,
+          iconTheme: IconThemeData(
+            color: Colors.grey.shade700,
+          ),
+          shape: Border(
+            bottom: BorderSide(color: Colors.grey.shade500, width: 2),
+          ),
+          titleTextStyle: TextStyle(
+            color: Colors.grey.shade700,
+            fontSize: 16,
+          ),
+        ),
+      );
 
   @override
   bool isDark() => false;
@@ -406,6 +437,7 @@ final _themePackages = <_ThemePackage>[
   _DarkTheme(),
   _DustyBlueTheme(),
   _DarkBlackTheme(),
+  _BookTheme(),
 ];
 
 // 主题更换事件

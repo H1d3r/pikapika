@@ -1410,7 +1410,7 @@ class _WebToonReaderImageState extends State<_WebToonReaderImage> {
               return GestureDetector(
                 onLongPress: () async {
                   String? choose =
-                      await chooseListDialog(context, tr('components.please_choose'), [tr('components.image_reader.reload_image')]);
+                      await chooseListDialog(context, tr('app.please_choose'), [tr('components.image_reader.reload_image')]);
                       if (choose == null) {
                         return;
                       }
@@ -1809,7 +1809,7 @@ class _GalleryReaderState extends _ImageReaderContentState {
         return data.finalPath;
       }
 
-      String? choose = await chooseListDialog(context, tr('components.please_choose'), [tr('app.preview_image'), tr('app.save_image')]);
+      String? choose = await chooseListDialog(context, tr('app.please_choose'), [tr('app.preview_image'), tr('app.save_image')]);
       if (choose == null) {
         return;
       }
@@ -2195,7 +2195,7 @@ class _TwoPageGalleryReaderState extends _ImageReaderContentState {
     if (matchImages.isEmpty) {
       return;
     }
-    String? choose = await chooseListDialog(context, tr('components.please_choose'), [tr('components.image_reader.save_image_in_this_page')]);
+    String? choose = await chooseListDialog(context, tr('app.please_choose'), [tr('components.image_reader.save_image_in_this_page')]);
     if (choose == null) {
       return;
     }

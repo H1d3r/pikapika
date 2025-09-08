@@ -375,7 +375,8 @@
       "dark": "暗黑",
       "dusty_blue": "灰蓝",
       "dark_black": "纯黑",
-      "choose_theme": "选择主题"
+      "choose_theme": "选择主题",
+      "book": "书本"
     },
     "three_keep_right": {
       "title": "三区域模式翻页始终为右侧下一页"

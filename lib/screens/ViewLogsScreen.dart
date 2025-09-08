@@ -52,40 +52,43 @@ class _ViewLogsScreenState extends State<ViewLogsScreen> {
   }
 
   Future _deleteSelected() async {
-      if (_selectedList.isNotEmpty) {
-        await method.deleteViewLog(_selectedList.join(','));
+    if (_selectedList.isNotEmpty) {
+      var confirm = await confirmDialog(
+        context,
+        tr('screen.view_logs.clear_selected'),
+        tr('screen.view_logs.clear_selected_desc'),
+      );
+      if (!confirm) {
+        return;
       }
-      setState(() {
-        _inSelection = false;
-        _selectedList.clear();
-        _comicList.clear();
-        _isLoading = false;
-        _scrollOvered = true;
-        _offset = 0;
-      });
-      _loadPage();
+    }
+    if (_selectedList.isNotEmpty) {
+      await method.deleteViewLog(_selectedList.join(','));
+    }
+    setState(() {
+      _inSelection = false;
+      _selectedList.clear();
+      _comicList.clear();
+      _isLoading = false;
+      _scrollOvered = true;
+      _offset = 0;
+    });
+    _loadPage();
   }
 
   Future _viewSelected() async {
-      if (_selectedList.isNotEmpty) {
-        var confirm = await confirmDialog(
-          context,
-      tr('screen.view_logs.clear_selected'),
-      tr('screen.view_logs.clear_selected_desc'),
-        );
-        if (confirm == null || !confirm) {
-          return;
-        }
-      }
-      setState(() {
-        _inSelection = false;
-        _selectedList.clear();
-        _comicList.clear();
-        _isLoading = false;
-        _scrollOvered = true;
-        _offset = 0;
-      });
-      _loadPage();
+    if (_selectedList.isNotEmpty) {
+      await method.viewComic(_selectedList.join(','));
+    }
+    setState(() {
+      _inSelection = false;
+      _selectedList.clear();
+      _comicList.clear();
+      _isLoading = false;
+      _scrollOvered = true;
+      _offset = 0;
+    });
+    _loadPage();
   }
 
   Future _clearOnce(String id) async {
@@ -216,6 +219,15 @@ class _ViewLogsScreenState extends State<ViewLogsScreen> {
             ..._inSelection
                 ? [
                     IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _inSelection = false;
+                          _selectedList.clear();
+                        });
+                      },
+                      icon: Icon(Icons.cancel),
+                    ),
+                    IconButton(
                       onPressed: _viewSelected,
                       icon: const Icon(Icons.move_up),
                     ),
@@ -226,7 +238,7 @@ class _ViewLogsScreenState extends State<ViewLogsScreen> {
                   ]
                 : [
                     IconButton(
-                      icon: const Icon(Icons.move_down),
+                      icon: const Icon(Icons.rule),
                       onPressed: () {
                         setState(() {
                           _inSelection = !_inSelection;

@@ -45,6 +45,8 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
       _searchBar.controller.text = value;
     },
     buildDefaultAppBar: (BuildContext context) {
+      final theme = Theme.of(context);
+      final appBarIconColor = theme.appBarTheme.foregroundColor ?? Colors.white;
       if (_selecting) {
         return AppBar(
           leading: IconButton(
@@ -62,13 +64,14 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
           ),
           title: Text(tr('screen.download_list.multi_select_operation')),
           actions: [
-            _selectingCancelButton(),
-            _selectingMoveButton(),
-            _selectingDeleteButton(),
-            _selectAllButton(),
+            _selectingCancelButton(appBarIconColor),
+            _selectingMoveButton(appBarIconColor),
+            _selectingDeleteButton(appBarIconColor),
+            _selectAllButton(appBarIconColor),
           ],
         );
       }
+
       return AppBar(
         title: Text(_search == ""
             ? tr('screen.download_list.download_list')
@@ -83,24 +86,24 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
             child: Column(
               children: [
                 Expanded(child: Container()),
-                const Icon(
+                Icon(
                   Icons.search,
                   size: 18,
-                  color: Colors.white,
+                  color: appBarIconColor,
                 ),
                 Text(
                   tr('screen.download_list.search'),
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                  style: TextStyle(fontSize: 14, color: appBarIconColor),
                 ),
                 Expanded(child: Container()),
               ],
             ),
           ),
-          _customFolderButton(),
-          _toSelectingButton(),
-          _fileButton(),
+          _customFolderButton(appBarIconColor),
+          _toSelectingButton(appBarIconColor),
+          _fileButton(appBarIconColor),
           Container(width: 10),
-          pauseButton(),
+          pauseButton(appBarIconColor),
         ],
       );
     },
@@ -154,12 +157,12 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
     super.dispose();
   }
 
-  Widget _selectAllButton() {
+  Widget _selectAllButton(Color appBarIconColor) {
     return IconButton(
-      icon: const Icon(
+      icon: Icon(
         Icons.select_all,
         size: 18,
-        color: Colors.white,
+        color: appBarIconColor,
       ),
       onPressed: () async {
         setState(() {
@@ -249,7 +252,7 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
     );
   }
 
-  Widget _customFolderButton() {
+  Widget _customFolderButton(Color appBarIconColor) {
     return IconButton(
         onPressed: () async {
           String? choose = await chooseListDialog(
@@ -269,14 +272,14 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
         icon: Column(
           children: [
             Expanded(child: Container()),
-            const Icon(
+            Icon(
               Icons.folder,
               size: 18,
-              color: Colors.white,
+              color: appBarIconColor,
             ),
             Text(
               _customFolderName(),
-              style: const TextStyle(fontSize: 14, color: Colors.white),
+              style: TextStyle(fontSize: 14, color: appBarIconColor),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -379,7 +382,7 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
     );
   }
 
-  Widget _fileButton() {
+  Widget _fileButton(Color appBarIconColor) {
     return PopupMenuButton<int>(
       itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
         PopupMenuItem<int>(
@@ -419,14 +422,14 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
       child: Column(
         children: [
           Expanded(child: Container()),
-          const Icon(
+          Icon(
             Icons.drive_file_move,
             size: 18,
-            color: Colors.white,
+            color: appBarIconColor,
           ),
           Text(
             tr('screen.download_list.file'),
-            style: TextStyle(fontSize: 14, color: Colors.white),
+            style: TextStyle(fontSize: 14, color: appBarIconColor),
           ),
           Expanded(child: Container()),
         ],
@@ -469,7 +472,7 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
     );
   }
 
-  Widget pauseButton() {
+  Widget pauseButton(Color appBarIconColor) {
     return PopupMenuButton<int>(
         itemBuilder: (BuildContext context) => <PopupMenuItem<int>>[
               PopupMenuItem<int>(
@@ -508,13 +511,13 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
                   ? Icons.compare_arrows_sharp
                   : Icons.schedule_send,
               size: 18,
-              color: Colors.white,
+              color: appBarIconColor,
             ),
             Text(
               _downloadRunning
                   ? tr('screen.download_list.downloading')
                   : tr('screen.download_list.paused'),
-              style: const TextStyle(fontSize: 14, color: Colors.white),
+              style: TextStyle(fontSize: 14, color: appBarIconColor),
             ),
             Expanded(child: Container()),
           ],
@@ -538,7 +541,7 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
     });
   }
 
-  Widget _selectingCancelButton() {
+  Widget _selectingCancelButton(Color appBarIconColor) {
     return IconButton(
       onPressed: () {
         setState(() {
@@ -546,11 +549,11 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
           _selectingList = [];
         });
       },
-      icon: const Icon(Icons.cancel),
+      icon: Icon(Icons.cancel, color: appBarIconColor),
     );
   }
 
-  Widget _selectingMoveButton() {
+  Widget _selectingMoveButton(Color appBarIconColor) {
     return IconButton(
       onPressed: () async {
         var tmp = _selectingList;
@@ -597,11 +600,11 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
           }
         }
       },
-      icon: const Icon(Icons.move_down),
+      icon: Icon(Icons.move_down, color: appBarIconColor),
     );
   }
 
-  Widget _selectingDeleteButton() {
+  Widget _selectingDeleteButton(Color appBarIconColor) {
     return IconButton(
       onPressed: () async {
         var tmp = _selectingList;
@@ -631,11 +634,11 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
           }
         }
       },
-      icon: const Icon(Icons.delete),
+      icon: Icon(Icons.delete, color: appBarIconColor),
     );
   }
 
-  Widget _toSelectingButton() {
+  Widget _toSelectingButton(Color appBarIconColor) {
     return IconButton(
       onPressed: () {
         setState(() {
@@ -646,14 +649,14 @@ class _DownloadListScreenState extends State<DownloadListScreen> {
       icon: Column(
         children: [
           Expanded(child: Container()),
-          const Icon(
+          Icon(
             Icons.rule,
             size: 18,
-            color: Colors.white,
+            color: appBarIconColor,
           ),
           Text(
             tr('screen.download_list.multi_select'),
-            style: const TextStyle(fontSize: 14, color: Colors.white),
+            style: TextStyle(fontSize: 14, color: appBarIconColor),
           ),
           Expanded(child: Container()),
         ],

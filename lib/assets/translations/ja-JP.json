@@ -375,7 +375,8 @@
       "dark": "ダーク",
       "dusty_blue": "ダスティブルー",
       "dark_black": "ダークブラック",
-      "choose_theme": "テーマを選択"
+      "choose_theme": "テーマを選択",
+      "book": "本"
     },
     "three_keep_right": {
       "title": "3領域モードページを常に右に"

@@ -375,7 +375,8 @@
       "dark": "다크",
       "dusty_blue": "먼지 파란색",
       "dark_black": "진한 검은색",
-      "choose_theme": "테마 선택"
+      "choose_theme": "테마 선택",
+      "book": "책"
     },
     "three_keep_right": {
       "title": "세 영역 모드 페이지를 항상 오른쪽으로"
