@@ -113,6 +113,10 @@
     },
     "will_pop_notice": "戻るキーを2回連続で押すとアプリを終了します",
     "android_secure_flag": "スクリーンショットを無効化/タスクビューでの表示を無効化",
+    "android_display_mode": {
+      "title": "画面リフレッシュレート(Android)",
+      "dialog_title": "Android画面リフレッシュレート \n(省電力モードでは高リフレッシュレートになりません)"
+    },
     "authentication": "アプリに入る際の認証（システムが既にパスワードまたは指紋を入力している場合）",
     "set_password": "アプリケーションパスワードを設定",
     "auto_clean": {
@@ -399,6 +403,9 @@
     },
     "using_right_click_pop": {
       "title": "マウス右クリックで前のページに戻る"
+    },
+    "volume_controller": {
+      "title": "リーダー音量ボタンページめくり"
     },
     "volume_next_chapter": {
       "title": "音量/キーボード/コントローラーのダブルクリックで次のチャプター"
@@ -836,7 +843,8 @@
       "next_chapter": "次の章",
       "end_reading": "読書を終了",
       "reload_image": "画像を再読み込み",
-      "save_image_in_this_page": "このページの画像を保存"
+      "save_image_in_this_page": "このページの画像を保存",
+      "image_load_failed": "画像の読み込みに失敗しました"
     }
   }
 }

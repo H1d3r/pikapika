@@ -67,6 +67,6 @@ List<Widget> themeWidgets(
             ),
           ]
         : [],
-    ...androidVersion > 0 ? [enableStatusBarColorSetting()] : [],
+    // ...androidVersion > 0 ? [enableStatusBarColorSetting()] : [],
   ];
 }

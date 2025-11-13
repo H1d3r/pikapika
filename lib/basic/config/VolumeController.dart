@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../Common.dart';
 import '../Method.dart';
+import 'package:pikapika/i18.dart';
 
 const _propertyName = "volumeController";
 late bool volumeController;
@@ -21,7 +21,7 @@ Widget volumeControllerSetting() {
         (BuildContext context, void Function(void Function()) setState) {
       return SwitchListTile(
           value: volumeController,
-          title: const Text("阅读器音量键翻页"),
+          title: Text(tr('settings.volume_controller.title')),
           onChanged: (target) async {
             await method.saveProperty(_propertyName, "$target");
             volumeController = target;

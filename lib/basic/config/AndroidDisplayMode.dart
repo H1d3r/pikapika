@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pikapika/basic/Method.dart';
+import 'package:pikapika/i18.dart';
 
 import '../Common.dart';
 import 'IsPro.dart';
@@ -30,7 +31,7 @@ Future<void> _chooseAndroidDisplayMode(BuildContext context) async {
     list.addAll(_modes);
     String? result = await chooseListDialog<String>(
       context,
-      "安卓屏幕刷新率 \n(省电模式下不会高刷)",
+      tr('settings.android_display_mode.dialog_title'),
       list,
     );
     if (result != null) {
@@ -47,7 +48,7 @@ Widget androidDisplayModeSetting() {
       builder: (BuildContext context, void Function(void Function()) setState) {
         return ListTile(
           title: Text(
-            "屏幕刷新率(安卓)" + (!isPro ? "(发电)" : ""),
+            tr('settings.android_display_mode.title') + (!isPro ? "(${tr('app.pro')})" : ""),
             style: TextStyle(
               color: !isPro ? Colors.grey : null,
             ),
@@ -55,7 +56,7 @@ Widget androidDisplayModeSetting() {
           subtitle: Text(_androidDisplayMode),
           onTap: () async {
             if (!isPro) {
-              defaultToast(context, "请先发电再使用");
+              defaultToast(context, tr('app.pro_required'));
               return;
             }
             await _chooseAndroidDisplayMode(context);

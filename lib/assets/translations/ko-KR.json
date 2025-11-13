@@ -113,6 +113,10 @@
     },
     "will_pop_notice": "뒤로 키를 연속으로 두 번 눌러 앱을 종료합니다",
     "android_secure_flag": "스크린샷 비활성화/작업 보기에서 표시 비활성화",
+    "android_display_mode": {
+      "title": "화면 새로고침 속도(Android)",
+      "dialog_title": "Android 화면 새로고침 속도 \n(절전 모드에서는 고주사율이 적용되지 않음)"
+    },
     "authentication": "앱에 들어갈 때 인증 (시스템이 이미 비밀번호나 지문을 입력한 경우)",
     "set_password": "애플리케이션 비밀번호 설정",
     "auto_clean": {
@@ -399,6 +403,9 @@
     },
     "using_right_click_pop": {
       "title": "마우스 오른쪽 클릭으로 이전 페이지로 돌아가기"
+    },
+    "volume_controller": {
+      "title": "리더 볼륨 버튼 페이지 넘기기"
     },
     "volume_next_chapter": {
       "title": "볼륨/키보드/컨트롤러 더블 클릭으로 다음 챕터"
@@ -836,7 +843,8 @@
       "next_chapter": "다음 챕터",
       "end_reading": "읽기 종료",
       "reload_image": "이미지 새로고침",
-      "save_image_in_this_page": "이 페이지의 이미지 저장"
+      "save_image_in_this_page": "이 페이지의 이미지 저장",
+      "image_load_failed": "이미지 로드 실패"
     }
   }
 }

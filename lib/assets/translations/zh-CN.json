@@ -113,6 +113,10 @@
     },
     "will_pop_notice": "在首页连续按两下返回键才能退出APP",
     "android_secure_flag": "禁止截图/禁止显示在任务视图",
+    "android_display_mode": {
+      "title": "屏幕刷新率(安卓)",
+      "dialog_title": "安卓屏幕刷新率 \n(省电模式下不会高刷)"
+    },
     "authentication": "进入APP时验证身份(如果系统已经录入密码或指纹)",
     "set_password": "设置应用程序密码",
     "auto_clean": {
@@ -399,6 +403,9 @@
     },
     "using_right_click_pop": {
       "title": "鼠标右键返回上一页"
+    },
+    "volume_controller": {
+      "title": "阅读器音量键翻页"
     },
     "volume_next_chapter": {
       "title": "双击 音量/键盘/控制器 下一章节"
@@ -836,7 +843,8 @@
       "next_chapter": "下一章",
       "end_reading": "结束阅读",
       "reload_image": "重新加载图片",
-      "save_image_in_this_page": "保存本页的图片"
+      "save_image_in_this_page": "保存本页的图片",
+      "image_load_failed": "图片加载失败"
     }
   }
 }

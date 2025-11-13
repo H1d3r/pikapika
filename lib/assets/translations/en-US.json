@@ -113,6 +113,10 @@
     },
     "will_pop_notice": "Press the back key twice in a row to exit the app",
     "android_secure_flag": "Disable screenshot/disable display in task view",
+    "android_display_mode": {
+      "title": "Screen refresh rate (Android)",
+      "dialog_title": "Android screen refresh rate \n(No high refresh in power saving mode)"
+    },
     "authentication": "Authentication when entering the app (if the system has already entered the password or fingerprint)",
     "set_password": "Set application password",
     "auto_clean": {
@@ -399,6 +403,9 @@
     },
     "using_right_click_pop": {
       "title": "Mouse right click to return to the previous page"
+    },
+    "volume_controller": {
+      "title": "Reader volume button page turn"
     },
     "volume_next_chapter": {
       "title": "Double click volume/keyboard/controller to next chapter"
@@ -836,7 +843,8 @@
       "next_chapter": "Next chapter",
       "end_reading": "End reading",
       "reload_image": "Reload image",
-      "save_image_in_this_page": "Save image in this page"
+      "save_image_in_this_page": "Save image in this page",
+      "image_load_failed": "Image load failed"
     }
   }
 }

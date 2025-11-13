@@ -1821,14 +1821,14 @@ class _GalleryReaderState extends _ImageReaderContentState {
             builder: (context) => FilePhotoViewScreen(file),
           ));
         } catch (e) {
-          defaultToast(context, "图片加载失败");
+          defaultToast(context, tr('components.image_reader.image_load_failed'));
         }
       } else if (choose == tr('app.save_image')) {
         try {
           var file = await load();
           saveImage(file, context);
         } catch (e) {
-          defaultToast(context, "图片加载失败");
+          defaultToast(context, tr('components.image_reader.image_load_failed'));
         }
       }
     }
