@@ -123,6 +123,29 @@ Widget fontSetting() {
   );
 }
 
+//
+const _enableStatusBarColorProperty = "enableStatusBarColorProperty";
+var _enableStatusBarColor = false;
+
+Widget enableStatusBarColorSetting() {
+  return StatefulBuilder(
+    builder: (BuildContext context, void Function(void Function()) setState) {
+      return SwitchListTile(
+        title: Text(tr("settings.theme.enable_status_bar_color")),
+        subtitle: Text(tr("settings.theme.enable_status_restart_hint")),
+        value: _enableStatusBarColor,
+        onChanged: (bool value) async {
+          await method.saveProperty(
+              _enableStatusBarColorProperty, "$value");
+          _enableStatusBarColor = value;
+          _reloadTheme();
+          setState(() {});
+        },
+      );
+    },
+  );
+}
+
 // 主题相关
 
 // 主题包
@@ -197,7 +220,10 @@ class _PinkTheme extends _ThemePackage {
           secondary: Colors.pink.shade200,
         ),
         appBarTheme: AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor:
+                _enableStatusBarColor ? Colors.pink.shade200 : null,
+          ),
           color: Colors.pink.shade200,
           iconTheme: const IconThemeData(
             color: Colors.white,
@@ -240,7 +266,10 @@ class _BlackTheme extends _ThemePackage {
           secondary: Colors.pink.shade200,
         ),
         appBarTheme: AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor:
+                _enableStatusBarColor ? Colors.grey.shade800 : null,
+          ),
           color: Colors.grey.shade800,
           iconTheme: const IconThemeData(
             color: Colors.white,
@@ -283,11 +312,14 @@ class _DarkTheme extends _ThemePackage {
           primary: Colors.pink.shade200,
           secondary: Colors.pink.shade200,
         ),
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          color: Color(0xFF1E1E1E),
+        appBarTheme: AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor:
+                _enableStatusBarColor ? const Color(0xFF1E1E1E) : null,
+          ),
+          color: const Color(0xFF1E1E1E),
           foregroundColor: Colors.white,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.white,
           ),
         ),
@@ -343,11 +375,14 @@ class _DustyBlueTheme extends _ThemePackage {
           primary: Colors.blue.shade200,
           secondary: Colors.blue.shade200,
         ),
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          color: Color(0xff20253b),
+        appBarTheme: AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor:
+                _enableStatusBarColor ? const Color(0xff20253b) : null,
+          ),
+          color: const Color(0xff20253b),
           foregroundColor: Colors.white,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.white,
           ),
         ),
@@ -399,11 +434,15 @@ class _DarkBlackTheme extends _ThemePackage {
           secondary: Colors.pink.shade200,
         ),
         scaffoldBackgroundColor: Colors.black,
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          color: Color.fromARGB(0xff, 10, 10, 10),
+        appBarTheme: AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: _enableStatusBarColor
+                ? const Color.fromARGB(0xff, 10, 10, 10)
+                : null,
+          ),
+          color: const Color.fromARGB(0xff, 10, 10, 10),
           foregroundColor: Colors.white,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.white,
           ),
         ),
@@ -512,6 +551,8 @@ Future<dynamic> initTheme() async {
       _lightThemePropertyName, _defaultLightThemeCode);
   _darkThemeCode =
       await method.loadProperty(_darkThemePropertyName, _defaultDarkThemeCode);
+  _enableStatusBarColor =
+      await method.loadProperty(_enableStatusBarColorProperty, "false") == "true";
   _reloadTheme();
 }
 

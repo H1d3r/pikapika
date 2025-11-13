@@ -376,7 +376,9 @@
       "dusty_blue": "ダスティブルー",
       "dark_black": "ダークブラック",
       "choose_theme": "テーマを選択",
-      "book": "本"
+      "book": "本",
+      "enable_status_bar_color": "ステータスバーの色を有効にする",
+      "enable_status_restart_hint": "無効になった場合、ステータスバーの色を更新するにはアプリケーションを再起動する必要があります"
     },
     "three_keep_right": {
       "title": "3領域モードページを常に右に"

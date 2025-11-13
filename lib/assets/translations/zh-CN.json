@@ -376,7 +376,9 @@
       "dusty_blue": "灰蓝",
       "dark_black": "纯黑",
       "choose_theme": "选择主题",
-      "book": "书本"
+      "book": "书本",
+      "enable_status_bar_color": "启用状态栏颜色",
+      "enable_status_restart_hint": "关闭时需要重新启动应用程序刷新状态栏颜色"
     },
     "three_keep_right": {
       "title": "三区域模式翻页始终为右侧下一页"

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pikapika/basic/config/Platform.dart';
 import 'package:pikapika/i18.dart';
 
 import '../basic/config/Themes.dart';
@@ -32,7 +33,8 @@ class _ThemeScreenState extends State<ThemeScreen> {
   }
 }
 
-List<Widget> themeWidgets(BuildContext context, void Function(VoidCallback fn) setState) {
+List<Widget> themeWidgets(
+    BuildContext context, void Function(VoidCallback fn) setState) {
   return [
     ListTile(
       onTap: () async {
@@ -44,26 +46,27 @@ List<Widget> themeWidgets(BuildContext context, void Function(VoidCallback fn) s
     ),
     ...androidNightModeDisplay
         ? [
-      SwitchListTile(
-          title: Text(tr('screen.theme.dark_mode_different_theme')),
-          value: androidNightMode,
-          onChanged: (value) async {
-            await setAndroidNightMode(value);
-            setState(() {});
-          }),
-    ]
+            SwitchListTile(
+                title: Text(tr('screen.theme.dark_mode_different_theme')),
+                value: androidNightMode,
+                onChanged: (value) async {
+                  await setAndroidNightMode(value);
+                  setState(() {});
+                }),
+          ]
         : [],
     ...androidNightModeDisplay && androidNightMode
         ? [
-      ListTile(
-        onTap: () async {
-          await chooseDarkTheme(context);
-          setState(() {});
-        },
-        title: Text(tr('screen.theme.dark_mode_theme')),
-        subtitle: Text(currentDarkThemeName()),
-      ),
-    ]
+            ListTile(
+              onTap: () async {
+                await chooseDarkTheme(context);
+                setState(() {});
+              },
+              title: Text(tr('screen.theme.dark_mode_theme')),
+              subtitle: Text(currentDarkThemeName()),
+            ),
+          ]
         : [],
+    ...androidVersion > 0 ? [enableStatusBarColorSetting()] : [],
   ];
 }

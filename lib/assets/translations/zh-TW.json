@@ -376,7 +376,9 @@
       "dusty_blue": "灰蓝",
       "dark_black": "纯黑",
       "choose_theme": "選擇主題",
-      "book": "書本"
+      "book": "書本",
+      "enable_status_bar_color": "啟用狀態欄顏色",
+      "enable_status_restart_hint": "關閉時需要重新啟動應用程序刷新狀態欄顏色"
     },
     "three_keep_right": {
       "title": "三區域模式翻頁始終為右側下一頁"

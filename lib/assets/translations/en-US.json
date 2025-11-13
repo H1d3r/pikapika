@@ -376,7 +376,9 @@
       "dusty_blue": "Dusty blue",
       "dark_black": "Dark black",
       "choose_theme": "Choose theme",
-      "book": "Book"
+      "book": "Book",
+      "enable_status_bar_color": "Enable status bar color",
+      "enable_status_restart_hint": "When disabled, you need to restart the application to refresh the status bar color"
     },
     "three_keep_right": {
       "title": "Three area mode page always to the right"
