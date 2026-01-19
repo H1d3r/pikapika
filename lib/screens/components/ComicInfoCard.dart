@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:pikapika/i18.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +8,10 @@ import 'package:pikapika/basic/Entities.dart';
 import 'package:pikapika/basic/Method.dart';
 import 'package:pikapika/basic/config/CopyFullName.dart';
 import 'package:pikapika/basic/config/CopyFullNameTemplate.dart';
+import 'package:pikapika/basic/config/HideOnlineFavorite.dart';
+import 'package:pikapika/basic/config/IsPro.dart';
+import 'package:pikapika/basic/config/WebDav.dart';
 import 'package:pikapika/screens/SearchAuthorScreen.dart';
-import 'package:pikapika/screens/SearchScreen.dart';
 import 'package:pikapika/basic/Navigator.dart';
 import '../ComicsScreen.dart';
 import 'Images.dart';
@@ -32,6 +36,45 @@ class ComicInfoCard extends StatefulWidget {
 class _ComicInfoCard extends State<ComicInfoCard> {
   bool _favouriteLoading = false;
   bool _likeLoading = false;
+  bool _localFavoriteLoading = false;
+  LocalFavoriteComic? _localFavoriteComic;
+
+  @override
+  void initState() {
+    super.initState();
+    if (useLocalFavorite) {
+      _loadLocalFavoriteStatus();
+    }
+  }
+
+  Future<void> _loadLocalFavoriteStatus() async {
+    try {
+      _localFavoriteComic = await method.getLocalFavoriteComic(widget.info.id);
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      print("Load local favorite status error: $e");
+    }
+  }
+
+  String _encodeComicSimpleInfo(ComicSimple info) {
+    return jsonEncode({
+      "_id": info.id,
+      "title": info.title,
+      "author": info.author,
+      "pagesCount": info.pagesCount,
+      "epsCount": info.epsCount,
+      "finished": info.finished,
+      "categories": info.categories,
+      "likesCount": info.likesCount,
+      "thumb": {
+        "originalName": info.thumb.originalName,
+        "fileServer": info.thumb.fileServer,
+        "path": info.thumb.path,
+      },
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +82,8 @@ class _ComicInfoCard extends State<ComicInfoCard> {
     var theme = Theme.of(context);
     var view = info is ComicInfo ? info.viewsCount : 0;
     bool? like = info is ComicInfo ? info.isLiked : null;
-    bool? favourite = info is ComicInfo ? (info).isFavourite : null;
+    bool? favourite =
+        hideOnlineFavorite ? null : (info is ComicInfo ? (info).isFavourite : null);
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -233,23 +277,60 @@ class _ComicInfoCard extends State<ComicInfoCard> {
                               Container(height: 10),
                               SizedBox(
                                 height: 26,
-                                child: _favouriteLoading
-                                    ? IconButton(
-                                        color: Colors.pink[400],
-                                        onPressed: () {},
-                                        icon: const Icon(
-                                          Icons.sync,
-                                        ),
-                                      )
-                                    : IconButton(
-                                        color: Colors.pink[400],
-                                        onPressed: _changeFavourite,
-                                        icon: Icon(
-                                          favourite
-                                              ? Icons.bookmark
-                                              : Icons.bookmark_border,
-                                        ),
-                                      ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (useLocalFavorite) ...[
+                                      _localFavoriteLoading
+                                          ? IconButton(
+                                              color: Colors.blue[600],
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                              onPressed: () {},
+                                              icon: const Icon(
+                                                Icons.sync,
+                                              ),
+                                            )
+                                          : IconButton(
+                                              color: Colors.blue[600],
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                              onPressed: _changeLocalFavorite,
+                                              icon: Icon(
+                                                _localFavoriteComic != null
+                                                    ? Icons.folder_special
+                                                    : Icons.folder_open,
+                                              ),
+                                            ),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    _favouriteLoading
+                                        ? IconButton(
+                                            color: Colors.pink[400],
+                                            padding: EdgeInsets.zero,
+                                            constraints:
+                                                const BoxConstraints(),
+                                            onPressed: () {},
+                                            icon: const Icon(
+                                              Icons.sync,
+                                            ),
+                                          )
+                                        : IconButton(
+                                            color: Colors.pink[400],
+                                            padding: EdgeInsets.zero,
+                                            constraints:
+                                                const BoxConstraints(),
+                                            onPressed: _changeFavourite,
+                                            icon: Icon(
+                                              favourite
+                                                  ? Icons.bookmark
+                                                  : Icons.bookmark_border,
+                                            ),
+                                          ),
+                                  ],
+                                ),
                               ),
                             ]),
                       Container(height: 10),
@@ -293,6 +374,261 @@ class _ComicInfoCard extends State<ComicInfoCard> {
       setState(() {
         _likeLoading = false;
       });
+    }
+  }
+
+  Future<void> _changeLocalFavorite() async {
+    if (_localFavoriteComic != null) {
+      // 已收藏，显示确认删除对话框
+      bool? confirm = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(tr('local_favorite.remove_confirm_title')),
+            content: Text(tr('local_favorite.remove_confirm_content')),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(tr('app.cancel')),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(tr('app.confirm')),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirm == true) {
+        setState(() {
+          _localFavoriteLoading = true;
+        });
+        try {
+          await method.removeLocalFavoriteComic(widget.info.id);
+          setState(() {
+            _localFavoriteComic = null;
+          });
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(tr('local_favorite.remove_failed'))),
+            );
+          }
+        } finally {
+          setState(() {
+            _localFavoriteLoading = false;
+          });
+        }
+      }
+    } else {
+      // 未收藏，显示文件夹选择对话框
+      await _showFolderSelector();
+    }
+  }
+
+  Future<void> _showFolderSelector() async {
+    setState(() {
+      _localFavoriteLoading = true;
+    });
+
+    try {
+      List<LocalFavoriteFolder> folders = await method.listLocalFavoriteFolders();
+      int folderCount = await method.countLocalFavoriteFolders();
+
+      if (!mounted) return;
+
+      setState(() {
+        _localFavoriteLoading = false;
+      });
+
+      // 显示文件夹选择对话框
+      String? selectedFolderId = await showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(tr('local_favorite.select_folder')),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.folder_special),
+                    title: Text(tr('local_favorite.all_folders')),
+                    onTap: () {
+                      Navigator.of(context).pop('__ALL__');
+                    },
+                  ),
+                  const Divider(),
+                  if (folders.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(tr('local_favorite.no_folders')),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: folders.length,
+                      itemBuilder: (context, index) {
+                        final folder = folders[index];
+                        return ListTile(
+                          leading: const Icon(Icons.folder),
+                          title: Text(folder.name),
+                          onTap: () {
+                            Navigator.of(context).pop(folder.id);
+                          },
+                        );
+                      },
+                    ),
+                  const Divider(),
+                  ListTile(
+                    leading: Icon(
+                      Icons.create_new_folder,
+                      color: (isPro || folderCount < 3) ? null : Colors.grey,
+                    ),
+                    title: Text(
+                      tr('local_favorite.new_folder') +
+                          (isPro || folderCount < 3 ? "" : " (${tr('app.pro')})"),
+                      style: TextStyle(
+                        color: (isPro || folderCount < 3) ? null : Colors.grey,
+                      ),
+                    ),
+                    onTap: () async {
+                      if (!isPro && folderCount >= 3) {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(tr('local_favorite.folder_limit_reached')),
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.of(context).pop('__CREATE_NEW__');
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(tr('app.cancel')),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (selectedFolderId == '__ALL__') {
+        await _addToFolder("");
+      } else if (selectedFolderId == '__CREATE_NEW__') {
+        // 创建新文件夹
+        await _createNewFolder();
+      } else if (selectedFolderId != null) {
+        // 添加到选中的文件夹
+        await _addToFolder(selectedFolderId);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _localFavoriteLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('local_favorite.load_failed'))),
+        );
+      }
+    }
+  }
+
+  Future<void> _createNewFolder() async {
+    String? folderName = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        final controller = TextEditingController();
+        return AlertDialog(
+          title: Text(tr('local_favorite.new_folder')),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: tr('local_favorite.folder_name'),
+            ),
+            autofocus: true,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(tr('app.cancel')),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(controller.text.trim());
+              },
+              child: Text(tr('app.confirm')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (folderName != null && folderName.isNotEmpty) {
+      setState(() {
+        _localFavoriteLoading = true;
+      });
+
+      try {
+        LocalFavoriteFolder folder = await method.createLocalFavoriteFolder(folderName);
+        await _addToFolder(folder.id);
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _localFavoriteLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(tr('local_favorite.create_folder_failed'))),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _addToFolder(String folderId) async {
+    setState(() {
+      _localFavoriteLoading = true;
+    });
+
+    try {
+      await method.addLocalFavoriteComic(
+        widget.info.id,
+        folderId,
+        info: _encodeComicSimpleInfo(widget.info),
+      );
+      await _loadLocalFavoriteStatus();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('local_favorite.add_success'))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('local_favorite.add_failed'))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _localFavoriteLoading = false;
+        });
+      }
     }
   }
 }

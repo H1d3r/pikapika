@@ -96,6 +96,10 @@
     "web_server": "启动Web服务器",
     "web_server_subtitle": "让局域网内的设备通过浏览器看下载的漫画",
     "sync": "同步",
+    "history_sync": "历史记录同步",
+    "local_favorite_sync_title": "本地收藏夹同步",
+    "use_local_favorite": "使用本地收藏夹",
+    "use_local_favorite_desc": "在本地管理收藏，支持文件夹分类",
     "account": "账户",
     "modify_password": "修改密码",
     "ebook": "电纸书",
@@ -239,6 +243,10 @@
     "hidden_sub_icon": {
       "title": "隐藏订阅功能"
     },
+    "hide_online_favorite": {
+      "title": "隐藏在线收藏",
+      "desc": "隐藏在线收藏入口与收藏按钮"
+    },
     "hidden_words": {
       "title": "根据关键词隐藏",
       "clear_all": "确认清空",
@@ -276,7 +284,17 @@
       "sync_success": "同步成功",
       "sync_failed": "同步失败",
       "auto_sync": "自动同步历史记录到本地",
-      "auto_sync_desc": "开启后每次打开应用会自动备份历史记录"
+      "auto_sync_desc": "开启后每次打开应用会自动备份历史记录",
+      "choose_dir": "选择目录",
+      "clear_path": "清除路径",
+      "clear_path_desc": "确定要清除路径吗？"
+    },
+    "local_favorite_sync": {
+      "auto_sync": "自动同步本地收藏夹",
+      "auto_sync_desc": "使用WebDAV自动同步本地收藏夹",
+      "manual_sync": "手动同步本地收藏夹",
+      "sync_success": "同步成功",
+      "sync_failed": "同步失败"
     },
     "no_animation": {
       "title": "取消翻页动画（点按屏幕、音量键、键盘）"
@@ -412,6 +430,7 @@
     },
     "webdav": {
       "title": "WebDav",
+      "not_set": "未设置",
       "path": "WebDav 路径",
       "path_hint": "请输入WebDav 路径",
       "username": "WebDav 用户名",
@@ -425,6 +444,43 @@
       "sync_success": "同步成功",
       "sync_failed": "同步失败"
     }    
+  },
+  "local_favorite": {
+    "title": "本地收藏夹",
+    "all_folders": "全部",
+    "new_folder": "新建文件夹",
+    "select_mode": "多选",
+    "cancel_select_mode": "退出多选",
+    "select_all": "全选",
+    "delete_folder": "删除文件夹",
+    "move_to_folder": "移动到文件夹",
+    "remove_selected": "移除选中收藏",
+    "remove_selected_confirm": "确认从本地收藏夹中移除选中的漫画？",
+    "remove_selected_success": "已移除",
+    "remove_selected_failed": "移除失败",
+    "select_comics": "请先选择漫画",
+    "folder_limit_reached": "免费版最多创建3个文件夹，升级Pro解锁无限制",
+    "batch_download": "批量下载",
+    "select_folder": "选择文件夹",
+    "folder_name": "文件夹名称",
+    "delete_confirm": "确认删除文件夹？",
+    "empty_folder": "暂无收藏",
+    "no_folders": "还没有文件夹，请先创建",
+    "remove_confirm_title": "取消收藏",
+    "remove_confirm_content": "确定要从本地收藏夹中移除这部漫画吗？",
+    "remove_failed": "取消收藏失败",
+    "load_failed": "加载失败",
+    "add_success": "已添加到本地收藏夹",
+    "add_failed": "添加失败",
+    "create_folder_failed": "创建文件夹失败",
+    "create_success": "创建成功",
+    "delete_success": "删除成功",
+    "delete_failed": "删除失败",
+    "move_success": "移动成功",
+    "move_failed": "移动失败",
+    "select_comics_to_download": "请选择要下载的漫画",
+    "download_started": "开始下载",
+    "download_failed": "下载失败"
   },
   "screen": {
     "about": {

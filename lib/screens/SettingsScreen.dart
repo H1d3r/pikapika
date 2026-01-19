@@ -51,9 +51,9 @@ import '../basic/config/HiddenFdIcon.dart';
 import '../basic/config/HiddenSubIcon.dart';
 import '../basic/config/HiddenViewed.dart';
 import '../basic/config/HiddenWords.dart';
+import '../basic/config/HideOnlineFavorite.dart';
 import '../basic/config/IgnoreInfoHistory.dart';
 import '../basic/config/ImageFilter.dart';
-import '../basic/config/LocalHistorySync.dart';
 import '../basic/config/ReaderScrollByScreenPercentage.dart';
 import '../basic/config/ReaderTwoPageDirection.dart';
 import '../basic/config/StartupPic.dart';
@@ -68,7 +68,6 @@ import 'MigrateScreen.dart';
 import 'ModifyPasswordScreen.dart';
 import 'ThemeScreen.dart';
 import 'WebServerScreen.dart';
-import 'HiddenWordsScreen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool hiddenAccountInfo;
@@ -213,8 +212,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 const Divider(),
                 ...webDavSettings(context),
-                if (!Platform.isIOS) const Divider(),
-                ...Platform.isIOS ? [] : localHistorySyncTiles(),
               ],
             ),
             ExpansionTile(
@@ -236,6 +233,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                         title: Text(tr('settings.modify_password')),
                       ),
+                const Divider(),
+                hideOnlineFavoriteSetting(),
               ],
             ),
             ExpansionTile(

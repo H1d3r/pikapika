@@ -239,6 +239,10 @@
     "hidden_sub_icon": {
       "title": "구독 기능 숨기기"
     },
+    "hide_online_favorite": {
+      "title": "온라인 즐겨찾기 숨기기",
+      "desc": "온라인 즐겨찾기 진입 및 즐겨찾기 버튼 숨기기"
+    },
     "hidden_words": {
       "title": "키워드로 숨기기",
       "clear_all": "지우기 확인",
@@ -276,7 +280,21 @@
       "sync_success": "동기화 성공",
       "sync_failed": "동기화 실패",
       "auto_sync": "기록을 로컬에 자동 동기화",
-      "auto_sync_desc": "애플리케이션을 열 때마다 기록이 자동으로 백업됩니다"
+      "auto_sync_desc": "애플리케이션을 열 때마다 기록이 자동으로 백업됩니다",
+      "choose_dir": "디렉터리 선택",
+      "clear_path": "경로 지우기",
+      "clear_path_desc": "경로를 지우시겠습니까?"
+    },
+    "history_sync": "기록 동기화",
+    "local_favorite_sync_title": "로컬 즐겨찾기 동기화",
+    "use_local_favorite": "로컬 즐겨찾기 사용",
+    "use_local_favorite_desc": "즐겨찾기를 로컬에서 관리하고 폴더 분류를 지원합니다",
+    "local_favorite_sync": {
+      "auto_sync": "로컬 즐겨찾기 자동 동기화",
+      "auto_sync_desc": "WebDAV로 로컬 즐겨찾기를 자동 동기화",
+      "manual_sync": "로컬 즐겨찾기 수동 동기화",
+      "sync_success": "동기화 성공",
+      "sync_failed": "동기화 실패"
     },
     "no_animation": {
       "title": "페이지 애니메이션 취소 (화면 터치, 볼륨 키, 키보드)"
@@ -412,6 +430,7 @@
     },
     "webdav": {
       "title": "WebDav",
+      "not_set": "설정되지 않음",
       "path": "WebDav 경로",
       "path_hint": "WebDav 경로를 입력하세요",
       "username": "WebDav 사용자명",
@@ -425,6 +444,43 @@
       "sync_success": "동기화 성공",
       "sync_failed": "동기화 실패"
     }
+  },
+  "local_favorite": {
+    "title": "로컬 즐겨찾기",
+    "all_folders": "전체",
+    "new_folder": "새 폴더",
+    "select_mode": "선택",
+    "cancel_select_mode": "선택 취소",
+    "select_all": "전체 선택",
+    "delete_folder": "폴더 삭제",
+    "move_to_folder": "폴더로 이동",
+    "remove_selected": "선택 항목 제거",
+    "remove_selected_confirm": "선택한 만화를 로컬 즐겨찾기에서 제거할까요?",
+    "remove_selected_success": "제거됨",
+    "remove_selected_failed": "제거 실패",
+    "select_comics": "먼저 만화를 선택하세요",
+    "folder_limit_reached": "무료 버전은 폴더를 최대 3개까지 만들 수 있습니다. Pro로 업그레이드하면 무제한입니다",
+    "batch_download": "일괄 다운로드",
+    "select_folder": "폴더 선택",
+    "folder_name": "폴더 이름",
+    "delete_confirm": "폴더를 삭제하시겠습니까?",
+    "empty_folder": "아직 즐겨찾기가 없습니다",
+    "no_folders": "폴더가 없습니다. 먼저 폴더를 만들어주세요",
+    "remove_confirm_title": "즐겨찾기에서 제거",
+    "remove_confirm_content": "이 만화를 로컬 즐겨찾기에서 제거하시겠습니까?",
+    "remove_failed": "제거 실패",
+    "load_failed": "불러오기 실패",
+    "add_success": "로컬 즐겨찾기에 추가됨",
+    "add_failed": "추가 실패",
+    "create_folder_failed": "폴더 생성 실패",
+    "create_success": "생성됨",
+    "delete_success": "삭제됨",
+    "delete_failed": "삭제 실패",
+    "move_success": "이동됨",
+    "move_failed": "이동 실패",
+    "select_comics_to_download": "다운로드할 만화를 선택하세요",
+    "download_started": "다운로드 시작됨",
+    "download_failed": "다운로드 실패"
   },
   "screen": {
     "about": {

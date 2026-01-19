@@ -239,6 +239,10 @@
     "hidden_sub_icon": {
       "title": "隱藏訂閱功能"
     },
+    "hide_online_favorite": {
+      "title": "隱藏線上收藏",
+      "desc": "隱藏線上收藏入口與收藏按鈕"
+    },
     "hidden_words": {
       "title": "根據關鍵詞隱藏",
       "clear_all": "確認清空",
@@ -276,7 +280,21 @@
       "sync_success": "同步成功",
       "sync_failed": "同步失敗",
       "auto_sync": "自動同步歷史記錄到本地",
-      "auto_sync_desc": "開啟後每次打開應用會自動備份歷史記錄"
+      "auto_sync_desc": "開啟後每次打開應用會自動備份歷史記錄",
+      "choose_dir": "選擇目錄",
+      "clear_path": "清除路徑",
+      "clear_path_desc": "確定要清除路徑嗎？"
+    },
+    "history_sync": "歷史記錄同步",
+    "local_favorite_sync_title": "本地收藏夾同步",
+    "use_local_favorite": "使用本地收藏夾",
+    "use_local_favorite_desc": "在本地管理收藏，支援資料夾分類",
+    "local_favorite_sync": {
+      "auto_sync": "自動同步本地收藏夾",
+      "auto_sync_desc": "使用WebDAV自動同步本地收藏夾",
+      "manual_sync": "手動同步本地收藏夾",
+      "sync_success": "同步成功",
+      "sync_failed": "同步失敗"
     },
     "no_animation": {
       "title": "取消翻頁動畫（點按屏幕、音量鍵、鍵盤）"
@@ -412,6 +430,7 @@
     },
     "webdav": {
       "title": "WebDav",
+      "not_set": "未設置",
       "path": "WebDav 路徑",
       "path_hint": "請輸入WebDav 路徑",
       "username": "WebDav 用戶名",
@@ -425,6 +444,43 @@
       "sync_success": "同步成功",
       "sync_failed": "同步失敗"
     }
+  },
+  "local_favorite": {
+    "title": "本地收藏夾",
+    "all_folders": "全部",
+    "new_folder": "新建資料夾",
+    "select_mode": "多選",
+    "cancel_select_mode": "退出多選",
+    "select_all": "全選",
+    "delete_folder": "刪除資料夾",
+    "move_to_folder": "移動到資料夾",
+    "remove_selected": "移除選中收藏",
+    "remove_selected_confirm": "確認從本地收藏夾中移除選中的漫畫？",
+    "remove_selected_success": "已移除",
+    "remove_selected_failed": "移除失敗",
+    "select_comics": "請先選擇漫畫",
+    "folder_limit_reached": "免費版最多建立3個資料夾，升級Pro解鎖無限制",
+    "batch_download": "批次下載",
+    "select_folder": "選擇資料夾",
+    "folder_name": "資料夾名稱",
+    "delete_confirm": "確認刪除資料夾？",
+    "empty_folder": "暫無收藏",
+    "no_folders": "還沒有資料夾，請先建立",
+    "remove_confirm_title": "取消收藏",
+    "remove_confirm_content": "確定要從本地收藏夾中移除這部漫畫嗎？",
+    "remove_failed": "取消收藏失敗",
+    "load_failed": "載入失敗",
+    "add_success": "已新增到本地收藏夾",
+    "add_failed": "新增失敗",
+    "create_folder_failed": "建立資料夾失敗",
+    "create_success": "建立成功",
+    "delete_success": "刪除成功",
+    "delete_failed": "刪除失敗",
+    "move_success": "移動成功",
+    "move_failed": "移動失敗",
+    "select_comics_to_download": "請選擇要下載的漫畫",
+    "download_started": "開始下載",
+    "download_failed": "下載失敗"
   },
   "screen": {
     "about": {

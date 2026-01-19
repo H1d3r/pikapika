@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:pikapika/i18.dart';
 import 'package:pikapika/basic/Common.dart';
+import 'package:pikapika/basic/config/HideOnlineFavorite.dart';
 import 'package:pikapika/basic/config/HiddenFdIcon.dart';
 import 'package:pikapika/basic/config/Version.dart';
 import 'package:pikapika/screens/AboutScreen.dart';
 import 'package:pikapika/screens/AccountScreen.dart';
 import 'package:pikapika/screens/DownloadListScreen.dart';
 import 'package:pikapika/screens/FavouritePaperScreen.dart';
+import 'package:pikapika/screens/LocalFavoriteScreen.dart';
 import 'package:pikapika/screens/ProScreen.dart';
 import 'package:pikapika/screens/ViewLogsScreen.dart';
 import 'package:pikapika/basic/Method.dart';
+import 'package:pikapika/basic/config/WebDav.dart';
 
 import '../basic/config/IconLoading.dart';
 import '../basic/config/IsPro.dart';
@@ -31,6 +34,8 @@ class _SpaceScreenState extends State<SpaceScreen> {
     versionEvent.subscribe(_onEvent);
     proEvent.subscribe(_onEvent);
     hiddenFdIconEvent.subscribe(_onEvent);
+    useLocalFavoriteEvent.subscribe(_onEvent);
+    hideOnlineFavoriteEvent.subscribe(_onEvent);
     super.initState();
   }
 
@@ -39,6 +44,8 @@ class _SpaceScreenState extends State<SpaceScreen> {
     versionEvent.unsubscribe(_onEvent);
     proEvent.unsubscribe(_onEvent);
     hiddenFdIconEvent.unsubscribe(_onEvent);
+    useLocalFavoriteEvent.unsubscribe(_onEvent);
+    hideOnlineFavoriteEvent.unsubscribe(_onEvent);
     super.dispose();
   }
 
@@ -110,16 +117,30 @@ class _SpaceScreenState extends State<SpaceScreen> {
           const Divider(),
           const UserProfileCard(),
           const Divider(),
-          ListTile(
-            onTap: () {
-              Navigator.push(
-                context,
-                mixRoute(builder: (context) => const FavouritePaperScreen()),
-              );
-            },
-            title: Text(tr('screen.space.my_favourites')),
-          ),
-          const Divider(),
+          if (!hideOnlineFavorite) ...[
+            ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  mixRoute(builder: (context) => const FavouritePaperScreen()),
+                );
+              },
+              title: Text(tr('screen.space.my_favourites')),
+            ),
+            const Divider(),
+          ],
+          if (useLocalFavorite) ...[
+            ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  mixRoute(builder: (context) => const LocalFavoriteScreen()),
+                );
+              },
+              title: Text(tr('local_favorite.title')),
+            ),
+            const Divider(),
+          ],
           ListTile(
             onTap: () {
               Navigator.push(

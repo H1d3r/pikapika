@@ -1227,3 +1227,60 @@ class ComicSubscribe {
     return _data;
   }
 }
+
+/// 本地收藏夹文件夹
+class LocalFavoriteFolder {
+  late String id;
+  late String name;
+  late int createdAt;
+  late int updatedAt;
+  late int deletedAt;
+
+  LocalFavoriteFolder.fromJson(Map<String, dynamic> json) {
+    this.id = json["id"];
+    this.name = json["name"];
+    this.createdAt = json["createdAt"];
+    this.updatedAt = json["updatedAt"];
+    this.deletedAt = json["deletedAt"];
+  }
+
+  Map<String, dynamic> toJson() {
+    final _data = <String, dynamic>{};
+    _data['id'] = id;
+    _data['name'] = name;
+    _data['createdAt'] = createdAt;
+    _data['updatedAt'] = updatedAt;
+    _data['deletedAt'] = deletedAt;
+    return _data;
+  }
+}
+
+/// 本地收藏夹漫画
+class LocalFavoriteComic {
+  late String comicId;
+  late String folderId;
+  String? info;
+  late int createdAt;
+  late int updatedAt;
+  late int deletedAt;
+
+  LocalFavoriteComic.fromJson(Map<String, dynamic> json) {
+    this.comicId = json["comicId"];
+    this.folderId = json["folderId"];
+    this.info = json["info"];
+    this.createdAt = json["createdAt"];
+    this.updatedAt = json["updatedAt"];
+    this.deletedAt = json["deletedAt"];
+  }
+
+  Map<String, dynamic> toJson() {
+    final _data = <String, dynamic>{};
+    _data['comicId'] = comicId;
+    _data['folderId'] = folderId;
+    _data['info'] = info;
+    _data['createdAt'] = createdAt;
+    _data['updatedAt'] = updatedAt;
+    _data['deletedAt'] = deletedAt;
+    return _data;
+  }
+}

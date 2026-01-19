@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:pikapika/basic/Entities.dart';
@@ -1155,5 +1153,90 @@ class Method {
   Future<List<String>> fontList() async {
     return await _channel.invokeMethod(
         "fontList", {}).then((value) => List.of(value).cast<String>());
+  }
+
+  // 本地收藏夹方法
+  Future<LocalFavoriteFolder> createLocalFavoriteFolder(String name) async {
+    String data = await _flatInvoke("createLocalFavoriteFolder", {"name": name});
+    return LocalFavoriteFolder.fromJson(jsonDecode(data));
+  }
+
+  Future updateLocalFavoriteFolder(LocalFavoriteFolder folder) async {
+    return _flatInvoke("updateLocalFavoriteFolder", folder.toJson());
+  }
+
+  Future deleteLocalFavoriteFolder(String folderId) async {
+    return _flatInvoke("deleteLocalFavoriteFolder", folderId);
+  }
+
+  Future<LocalFavoriteFolder> getLocalFavoriteFolder(String folderId) async {
+    String data = await _flatInvoke("getLocalFavoriteFolder", folderId);
+    return LocalFavoriteFolder.fromJson(jsonDecode(data));
+  }
+
+  Future<List<LocalFavoriteFolder>> listLocalFavoriteFolders() async {
+    String data = await _flatInvoke("listLocalFavoriteFolders", "");
+    List list = jsonDecode(data);
+    return list.map((e) => LocalFavoriteFolder.fromJson(e)).toList();
+  }
+
+  Future<int> countLocalFavoriteFolders() async {
+    String data = await _flatInvoke("countLocalFavoriteFolders", "");
+    return int.parse(data);
+  }
+
+  Future addLocalFavoriteComic(String comicId, String folderId, {String info = ""}) async {
+    return _flatInvoke("addLocalFavoriteComic", {
+      "comicId": comicId,
+      "folderId": folderId,
+      "info": info,
+    });
+  }
+
+  Future removeLocalFavoriteComic(String comicId) async {
+    return _flatInvoke("removeLocalFavoriteComic", comicId);
+  }
+
+  Future moveLocalFavoriteComics(List<String> comicIds, String folderId) async {
+    return _flatInvoke("moveLocalFavoriteComics", {
+      "comicIds": comicIds,
+      "folderId": folderId,
+    });
+  }
+
+  Future<LocalFavoriteComic?> getLocalFavoriteComic(String comicId) async {
+    try {
+      String data = await _flatInvoke("getLocalFavoriteComic", comicId);
+      if (data == "") {
+        return null;
+      }
+      return LocalFavoriteComic.fromJson(jsonDecode(data));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<LocalFavoriteComic>> listLocalFavoriteComics(String folderId) async {
+    String data = await _flatInvoke("listLocalFavoriteComics", {"folderId": folderId});
+    List list = jsonDecode(data);
+    return list.map((e) => LocalFavoriteComic.fromJson(e)).toList();
+  }
+
+  Future<List<LocalFavoriteComic>> listAllLocalFavoriteComics() async {
+    String data = await _flatInvoke("listAllLocalFavoriteComics", "");
+    List list = jsonDecode(data);
+    return list.map((e) => LocalFavoriteComic.fromJson(e)).toList();
+  }
+
+  Future mergeLocalFavoritesFromWebDav(
+    String webdavRoot,
+    String webdavUsername,
+    String webdavPassword,
+  ) async {
+    return _flatInvoke("mergeLocalFavoritesFromWebDav", {
+      "webdavRoot": webdavRoot,
+      "webdavUsername": webdavUsername,
+      "webdavPassword": webdavPassword,
+    });
   }
 }

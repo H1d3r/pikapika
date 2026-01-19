@@ -1,4 +1,5 @@
 import 'package:pikapika/i18.dart';
+import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 
 import '../Common.dart';
@@ -9,17 +10,31 @@ const _webdavRootPropertyName = "webdavRoot";
 const _webdavUsernamePropertyName = "webdavUsername";
 const _webdavPasswordPropertyName = "webdavPassword";
 const _autoSyncHistoryToWebdavPropertyName = "autoSyncHistoryToWebdav";
+const _useLocalFavoritePropertyName = "useLocalFavorite";
+const _autoSyncLocalFavoriteToWebdavPropertyName = "autoSyncLocalFavoriteToWebdav";
 
 late String _webdavRoot;
 late String _webdavUsername;
 late String _webdavPassword;
 late bool _autoSyncHistoryToWebdav;
+late bool _useLocalFavorite;
+late bool _autoSyncLocalFavoriteToWebdav;
+
+String get webdavRoot => _webdavRoot;
+String get webdavUsername => _webdavUsername;
+String get webdavPassword => _webdavPassword;
+bool get useLocalFavorite => _useLocalFavorite;
+
+final useLocalFavoriteEvent = Event();
 
 Future initWebDav() async {
   _webdavRoot = await method.loadProperty(
     _webdavRootPropertyName,
-    "https://your.dav.host/folder",
+    "",
   );
+  if (_webdavRoot == "https://your.dav.host/folder") {
+    _webdavRoot = "";
+  }
   _webdavUsername = await method.loadProperty(
     _webdavUsernamePropertyName,
     "",
@@ -28,8 +43,14 @@ Future initWebDav() async {
     _webdavPasswordPropertyName,
     "",
   );
+  _useLocalFavorite = await method.loadProperty(
+        _useLocalFavoritePropertyName,
+        "false",
+      ) ==
+      "true";
   if (!isPro) {
     _autoSyncHistoryToWebdav = false;
+    _autoSyncLocalFavoriteToWebdav = false;
     return;
   }
   _autoSyncHistoryToWebdav = await method.loadProperty(
@@ -37,6 +58,110 @@ Future initWebDav() async {
         "false",
       ) ==
       "true";
+  _autoSyncLocalFavoriteToWebdav = await method.loadProperty(
+        _autoSyncLocalFavoriteToWebdavPropertyName,
+        "false",
+      ) ==
+      "true";
+  if (_autoSyncLocalFavoriteToWebdav && _webdavRoot.isNotEmpty) {
+    try {
+      await method.mergeLocalFavoritesFromWebDav(
+        _webdavRoot,
+        _webdavUsername,
+        _webdavPassword,
+      );
+    } catch (e, s) {
+      print("$e\n$s");
+    }
+  }
+}
+
+Future setUseLocalFavorite(bool value) async {
+  await method.saveProperty(
+    _useLocalFavoritePropertyName,
+    value ? "true" : "false",
+  );
+  _useLocalFavorite = value;
+  useLocalFavoriteEvent.broadcast();
+}
+
+Widget useLocalFavoriteSetting() {
+  return StatefulBuilder(
+    builder: (BuildContext context, void Function(void Function()) setState) {
+      return SwitchListTile(
+        value: _useLocalFavorite,
+        onChanged: (bool value) async {
+          await setUseLocalFavorite(value);
+          setState(() {});
+        },
+        title: Text(tr("settings.use_local_favorite")),
+        subtitle: Text(tr("settings.use_local_favorite_desc")),
+      );
+    },
+  );
+}
+
+Future syncLocalFavoriteToWebdav(BuildContext context) async {
+  if (_webdavRoot.isEmpty) {
+    defaultToast(context, tr("settings.webdav.not_set"));
+    return;
+  }
+  try {
+    await method.mergeLocalFavoritesFromWebDav(
+      _webdavRoot,
+      _webdavUsername,
+      _webdavPassword,
+    );
+    defaultToast(context, tr("settings.local_favorite_sync.sync_success"));
+  } catch (e, s) {
+    print("$e\n$s");
+    defaultToast(context, tr("settings.local_favorite_sync.sync_failed"));
+  }
+}
+
+Widget localFavoriteSyncAutoTile() {
+  return StatefulBuilder(
+    builder: (BuildContext context, void Function(void Function()) setState) {
+      return SwitchListTile(
+        value: _autoSyncLocalFavoriteToWebdav && isPro,
+        onChanged: isPro
+            ? (bool value) async {
+                await method.saveProperty(
+                  _autoSyncLocalFavoriteToWebdavPropertyName,
+                  value ? "true" : "false",
+                );
+                setState(() {
+                  _autoSyncLocalFavoriteToWebdav = value;
+                });
+                if (value) {
+                  syncLocalFavoriteToWebdav(context);
+                }
+              }
+            : null,
+        title: Text(
+          tr("settings.local_favorite_sync.auto_sync") +
+              (isPro ? "" : " (${tr('app.pro')})"),
+          style: TextStyle(
+            color: isPro ? null : Colors.grey,
+          ),
+        ),
+        subtitle: Text(tr("settings.local_favorite_sync.auto_sync_desc")),
+      );
+    },
+  );
+}
+
+Widget localFavoriteSyncManualTile() {
+  return StatefulBuilder(
+    builder: (BuildContext context, void Function(void Function()) setState) {
+      return ListTile(
+        onTap: () async {
+          await syncLocalFavoriteToWebdav(context);
+        },
+        title: Text(tr("settings.local_favorite_sync.manual_sync")),
+      );
+    },
+  );
 }
 
 Future syncWebDavIfAuto(BuildContext context) async {
@@ -97,7 +222,8 @@ List<Widget> webDavSettings(BuildContext context) {
             title: Text(
               tr("settings.webdav.path"),
             ),
-            subtitle: Text(_webdavRoot),
+            subtitle:
+                Text(_webdavRoot.isEmpty ? tr("settings.webdav.not_set") : _webdavRoot),
             onTap: () async {
               String? input = await displayTextInputDialog(
                 context,
@@ -108,17 +234,19 @@ List<Widget> webDavSettings(BuildContext context) {
               if (input != null) {
                 await method.saveProperty(_webdavRootPropertyName, input);
                 setState(() {
-                  _webdavRoot = input;
+                  _webdavRoot = input == "https://your.dav.host/folder" ? "" : input;
                 });
               }
             });
       },
     ),
     //
+    useLocalFavoriteSetting(),
+    //
     StatefulBuilder(
       builder: (BuildContext context, void Function(void Function()) setState) {
         return ListTile(
-            title: Text(
+          title: Text(
               tr("settings.webdav.username"),
             ),
             subtitle: Text(_webdavUsername),
@@ -161,6 +289,11 @@ List<Widget> webDavSettings(BuildContext context) {
               }
             });
       },
+    ),
+    //
+    ListTile(
+      title: Text(tr('settings.history_sync')),
+      dense: true,
     ),
     //
     StatefulBuilder(
@@ -211,5 +344,13 @@ List<Widget> webDavSettings(BuildContext context) {
         onTap: () async {
           await uploadHistoryToWebdav(context);
         }),
+    //
+    const Divider(),
+    ListTile(
+      title: Text(tr('settings.local_favorite_sync_title')),
+      dense: true,
+    ),
+    localFavoriteSyncAutoTile(),
+    localFavoriteSyncManualTile(),
   ];
 }

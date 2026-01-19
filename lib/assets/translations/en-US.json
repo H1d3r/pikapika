@@ -96,6 +96,10 @@
     "web_server": "Web Server",
     "web_server_subtitle": "Let devices in the local network view the downloaded comics through the browser",
     "sync": "Sync",
+    "history_sync": "History Sync",
+    "local_favorite_sync_title": "Local Favorites Sync",
+    "use_local_favorite": "Use Local Favorites",
+    "use_local_favorite_desc": "Manage favorites locally with folder organization",
     "account": "Account",
     "modify_password": "Modify password",
     "ebook": "E-book",
@@ -239,6 +243,10 @@
     "hidden_sub_icon": {
       "title": "Hide subscription"
     },
+    "hide_online_favorite": {
+      "title": "Hide online favorites",
+      "desc": "Hide online favorites entry and favorite button"
+    },
     "hidden_words": {
       "title": "Hide by keyword",
       "clear_all": "Confirm clear",
@@ -276,7 +284,17 @@
       "sync_success": "Sync success",
       "sync_failed": "Sync failed",
       "auto_sync": "Auto sync history to local",
-      "auto_sync_desc": "After opening the application, the history will be automatically backed up"
+      "auto_sync_desc": "After opening the application, the history will be automatically backed up",
+      "choose_dir": "Choose directory",
+      "clear_path": "Clear path",
+      "clear_path_desc": "Are you sure you want to clear the path?"
+    },
+    "local_favorite_sync": {
+      "auto_sync": "Auto sync local favorites",
+      "auto_sync_desc": "Auto sync local favorites with WebDAV",
+      "manual_sync": "Manual sync local favorites",
+      "sync_success": "Sync success",
+      "sync_failed": "Sync failed"
     },
     "no_animation": {
       "title": "Cancel page animation (tap screen, volume key, keyboard)"
@@ -412,6 +430,7 @@
     },
     "webdav": {
       "title": "WebDav",
+      "not_set": "Not set",
       "path": "WebDav path",
       "path_hint": "Please enter the WebDav path",
       "username": "WebDav username",
@@ -425,6 +444,43 @@
       "sync_success": "Sync success",
       "sync_failed": "Sync failed"
     }
+  },
+  "local_favorite": {
+    "title": "Local Favorites",
+    "all_folders": "All",
+    "new_folder": "New Folder",
+    "select_mode": "Select",
+    "cancel_select_mode": "Cancel select",
+    "select_all": "Select all",
+    "delete_folder": "Delete Folder",
+    "move_to_folder": "Move to Folder",
+    "remove_selected": "Remove selected",
+    "remove_selected_confirm": "Remove selected comics from local favorites?",
+    "remove_selected_success": "Removed",
+    "remove_selected_failed": "Remove failed",
+    "select_comics": "Please select comics first",
+    "folder_limit_reached": "Free version allows up to 3 folders. Upgrade to Pro for unlimited folders",
+    "batch_download": "Batch Download",
+    "select_folder": "Select Folder",
+    "folder_name": "Folder Name",
+    "delete_confirm": "Confirm delete folder?",
+    "empty_folder": "No favorites yet",
+    "no_folders": "No folders yet, please create one first",
+    "remove_confirm_title": "Remove from Favorites",
+    "remove_confirm_content": "Are you sure you want to remove this comic from local favorites?",
+    "remove_failed": "Remove failed",
+    "load_failed": "Load failed",
+    "add_success": "Added to local favorites",
+    "add_failed": "Add failed",
+    "create_folder_failed": "Create folder failed",
+    "create_success": "Created successfully",
+    "delete_success": "Deleted successfully",
+    "delete_failed": "Delete failed",
+    "move_success": "Moved successfully",
+    "move_failed": "Move failed",
+    "select_comics_to_download": "Please select comics to download",
+    "download_started": "Download started",
+    "download_failed": "Download failed"
   },
   "screen": {
     "about": {

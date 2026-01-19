@@ -239,6 +239,10 @@
     "hidden_sub_icon": {
       "title": "購読機能を非表示"
     },
+    "hide_online_favorite": {
+      "title": "オンライン收藏を隠す",
+      "desc": "オンライン收藏の入口と收藏ボタンを隠す"
+    },
     "hidden_words": {
       "title": "キーワードで非表示",
       "clear_all": "クリア確認",
@@ -276,7 +280,21 @@
       "sync_success": "同期成功",
       "sync_failed": "同期失敗",
       "auto_sync": "履歴をローカルに自動同期",
-      "auto_sync_desc": "アプリケーションを開いた後、履歴が自動的にバックアップされます"
+      "auto_sync_desc": "アプリケーションを開いた後、履歴が自動的にバックアップされます",
+      "choose_dir": "ディレクトリを選択",
+      "clear_path": "パスをクリア",
+      "clear_path_desc": "パスをクリアしますか？"
+    },
+    "history_sync": "履歴同期",
+    "local_favorite_sync_title": "ローカル收藏同期",
+    "use_local_favorite": "ローカル收藏を使用",
+    "use_local_favorite_desc": "ローカルで收藏を管理し、フォルダー分類に対応",
+    "local_favorite_sync": {
+      "auto_sync": "ローカル收藏を自動同期",
+      "auto_sync_desc": "WebDAVでローカル收藏を自動同期",
+      "manual_sync": "ローカル收藏を手動同期",
+      "sync_success": "同期成功",
+      "sync_failed": "同期失敗"
     },
     "no_animation": {
       "title": "ページアニメーションをキャンセル（画面タップ、音量キー、キーボード）"
@@ -412,6 +430,7 @@
     },
     "webdav": {
       "title": "WebDav",
+      "not_set": "未設定",
       "path": "WebDav パス",
       "path_hint": "WebDav パスを入力してください",
       "username": "WebDav ユーザー名",
@@ -425,6 +444,43 @@
       "sync_success": "同期成功",
       "sync_failed": "同期失敗"
     }
+  },
+  "local_favorite": {
+    "title": "ローカル收藏",
+    "all_folders": "すべて",
+    "new_folder": "新しいフォルダー",
+    "select_mode": "選択",
+    "cancel_select_mode": "選択を終了",
+    "select_all": "すべて選択",
+    "delete_folder": "フォルダーを削除",
+    "move_to_folder": "フォルダーへ移動",
+    "remove_selected": "選択した收藏を削除",
+    "remove_selected_confirm": "選択した漫画をローカル收藏から削除しますか？",
+    "remove_selected_success": "削除しました",
+    "remove_selected_failed": "削除に失敗しました",
+    "select_comics": "先に漫画を選択してください",
+    "folder_limit_reached": "無料版は最大3つのフォルダーまでです。Proにアップグレードすると無制限になります",
+    "batch_download": "一括ダウンロード",
+    "select_folder": "フォルダーを選択",
+    "folder_name": "フォルダー名",
+    "delete_confirm": "フォルダーを削除しますか？",
+    "empty_folder": "まだ收藏がありません",
+    "no_folders": "フォルダーがありません。先に作成してください",
+    "remove_confirm_title": "收藏から削除",
+    "remove_confirm_content": "この漫画をローカル收藏から削除しますか？",
+    "remove_failed": "削除に失敗しました",
+    "load_failed": "読み込みに失敗しました",
+    "add_success": "ローカル收藏に追加しました",
+    "add_failed": "追加に失敗しました",
+    "create_folder_failed": "フォルダー作成に失敗しました",
+    "create_success": "作成しました",
+    "delete_success": "削除しました",
+    "delete_failed": "削除に失敗しました",
+    "move_success": "移動しました",
+    "move_failed": "移動に失敗しました",
+    "select_comics_to_download": "ダウンロードする漫画を選択してください",
+    "download_started": "ダウンロードを開始しました",
+    "download_failed": "ダウンロードに失敗しました"
   },
   "screen": {
     "about": {
