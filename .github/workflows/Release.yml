@@ -69,9 +69,9 @@ jobs:
             flutter_version: '2.10.3'
             go_version: '1.17'
           - target: macos
-            host: macos-14
+            host: macos-latest
             flutter_version: '2.10.3'
-            go_version: '1.17'
+            go_version: '1.19'
           - target: linux
             host: ubuntu-latest
             flutter_version: '2.10.3'
