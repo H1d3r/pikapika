@@ -234,6 +234,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(tr('settings.modify_password')),
                       ),
                 const Divider(),
+                useLocalFavoriteSetting(),
+                const Divider(),
                 hideOnlineFavoriteSetting(),
               ],
             ),

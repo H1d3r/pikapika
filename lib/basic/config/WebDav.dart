@@ -241,8 +241,6 @@ List<Widget> webDavSettings(BuildContext context) {
       },
     ),
     //
-    useLocalFavoriteSetting(),
-    //
     StatefulBuilder(
       builder: (BuildContext context, void Function(void Function()) setState) {
         return ListTile(

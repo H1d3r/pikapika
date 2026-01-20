@@ -82,8 +82,7 @@ class _ComicInfoCard extends State<ComicInfoCard> {
     var theme = Theme.of(context);
     var view = info is ComicInfo ? info.viewsCount : 0;
     bool? like = info is ComicInfo ? info.isLiked : null;
-    bool? favourite =
-        hideOnlineFavorite ? null : (info is ComicInfo ? (info).isFavourite : null);
+    bool? favourite = (hideOnlineFavorite || info is! ComicInfo) ? null : info.isFavourite;
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -271,7 +270,7 @@ class _ComicInfoCard extends State<ComicInfoCard> {
                                       ),
                               ),
                             ]),
-                      ...(favourite == null
+                      ...((!useLocalFavorite && favourite == null)
                           ? []
                           : [
                               Container(height: 10),
@@ -283,20 +282,16 @@ class _ComicInfoCard extends State<ComicInfoCard> {
                                     if (useLocalFavorite) ...[
                                       _localFavoriteLoading
                                           ? IconButton(
-                                              color: Colors.blue[600],
+                                              color: Colors.pink[400],
                                               padding: EdgeInsets.zero,
-                                              constraints:
-                                                  const BoxConstraints(),
+                                              constraints: const BoxConstraints(),
                                               onPressed: () {},
-                                              icon: const Icon(
-                                                Icons.sync,
-                                              ),
+                                              icon: const Icon(Icons.sync),
                                             )
                                           : IconButton(
-                                              color: Colors.blue[600],
+                                              color: Colors.pink[400],
                                               padding: EdgeInsets.zero,
-                                              constraints:
-                                                  const BoxConstraints(),
+                                              constraints: const BoxConstraints(),
                                               onPressed: _changeLocalFavorite,
                                               icon: Icon(
                                                 _localFavoriteComic != null
@@ -304,31 +299,29 @@ class _ComicInfoCard extends State<ComicInfoCard> {
                                                     : Icons.folder_open,
                                               ),
                                             ),
-                                      const SizedBox(width: 8),
                                     ],
-                                    _favouriteLoading
-                                        ? IconButton(
-                                            color: Colors.pink[400],
-                                            padding: EdgeInsets.zero,
-                                            constraints:
-                                                const BoxConstraints(),
-                                            onPressed: () {},
-                                            icon: const Icon(
-                                              Icons.sync,
+                                    if (useLocalFavorite && favourite != null)
+                                      const SizedBox(width: 8),
+                                    if (favourite != null)
+                                      _favouriteLoading
+                                          ? IconButton(
+                                              color: Colors.pink[400],
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.sync),
+                                            )
+                                          : IconButton(
+                                              color: Colors.pink[400],
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(),
+                                              onPressed: _changeFavourite,
+                                              icon: Icon(
+                                                favourite
+                                                    ? Icons.bookmark
+                                                    : Icons.bookmark_border,
+                                              ),
                                             ),
-                                          )
-                                        : IconButton(
-                                            color: Colors.pink[400],
-                                            padding: EdgeInsets.zero,
-                                            constraints:
-                                                const BoxConstraints(),
-                                            onPressed: _changeFavourite,
-                                            icon: Icon(
-                                              favourite
-                                                  ? Icons.bookmark
-                                                  : Icons.bookmark_border,
-                                            ),
-                                          ),
                                   ],
                                 ),
                               ),
