@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'package:pikapika/basic/config/passed.dart';
 import 'package:pikapika/hibiscus/hibiscus_browser.dart';
@@ -15,48 +15,56 @@ class BrowserScreen extends StatefulWidget {
 class _BrowserScreenState extends State<BrowserScreen> {
   final TextEditingController _urlController = TextEditingController();
   final FocusNode _urlFocusNode = FocusNode();
-  late final WebViewController _webController;
+  InAppWebViewController? _webController;
   bool _isLoading = true;
   double _loadProgress = 0;
   bool _canGoBack = false;
   bool _canGoForward = false;
+  String _currentUrl = HibiscusBrowser.defaultHomePage;
 
   @override
   void initState() {
     super.initState();
-    _urlController.text = HibiscusBrowser.defaultHomePage;
-    _webController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(Colors.transparent)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: _handleNavigationRequest,
-          onPageStarted: _handlePageStarted,
-          onPageFinished: _handlePageFinished,
-          onProgress: _handleProgress,
-        ),
-      )
-      ..loadRequest(Uri.parse(_urlController.text));
+    _urlController.text = _currentUrl;
   }
 
-  NavigationDecision _handleNavigationRequest(NavigationRequest request) {
-    if (HibiscusBrowser.isActivationUrl(request.url)) {
+  Future<NavigationActionPolicy?> _handleNavigationRequest(
+    InAppWebViewController controller,
+    NavigationAction navigationAction,
+  ) async {
+    final target = navigationAction.request.url?.toString() ?? '';
+    if (HibiscusBrowser.isActivationUrl(target)) {
       _activateAndExit();
-      return NavigationDecision.prevent;
+      return NavigationActionPolicy.CANCEL;
     }
-    _updateUrlTextIfNeeded(request.url);
-    return NavigationDecision.navigate;
+    _updateUrlTextIfNeeded(target);
+    return NavigationActionPolicy.ALLOW;
   }
 
-  void _handlePageStarted(String url) {
-    _updateUrlTextIfNeeded(url);
+  void _updateUrlTextIfNeeded(String url) {
+    if (_urlFocusNode.hasFocus) {
+      return;
+    }
+    _currentUrl = url;
+    _urlController
+      ..text = url
+      ..selection = TextSelection.collapsed(offset: url.length);
+  }
+
+  void _onWebViewCreated(InAppWebViewController controller) {
+    _webController = controller;
+    _updateNavigationState();
+  }
+
+  void _handleLoadStart(InAppWebViewController controller, WebUri? url) {
+    _updateUrlTextIfNeeded(url?.toString() ?? '');
     setState(() {
       _isLoading = true;
       _loadProgress = 0;
     });
   }
 
-  Future<void> _handlePageFinished(String url) async {
+  Future<void> _handleLoadStop(InAppWebViewController controller, WebUri? url) async {
     await _updateNavigationState();
     if (!mounted) return;
     setState(() {
@@ -65,7 +73,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     });
   }
 
-  void _handleProgress(int progress) {
+  void _handleProgress(InAppWebViewController controller, int progress) {
     if (!mounted) return;
     setState(() {
       _loadProgress = progress / 100;
@@ -73,8 +81,12 @@ class _BrowserScreenState extends State<BrowserScreen> {
   }
 
   Future<void> _updateNavigationState() async {
-    final canBack = await _webController.canGoBack();
-    final canForward = await _webController.canGoForward();
+    final controller = _webController;
+    if (controller == null) {
+      return;
+    }
+    final canBack = await controller.canGoBack();
+    final canForward = await controller.canGoForward();
     if (!mounted) return;
     setState(() {
       _canGoBack = canBack;
@@ -82,13 +94,28 @@ class _BrowserScreenState extends State<BrowserScreen> {
     });
   }
 
-  void _updateUrlTextIfNeeded(String url) {
-    if (_urlFocusNode.hasFocus) {
+  void _loadFromInput() {
+    final normalized = HibiscusBrowser.normalizeInput(_urlController.text);
+    if (HibiscusBrowser.isActivationUrl(normalized)) {
+      _activateAndExit();
       return;
     }
-    _urlController
-      ..text = url
-      ..selection = TextSelection.collapsed(offset: url.length);
+    _urlController.text = normalized;
+    _urlController.selection =
+        TextSelection.collapsed(offset: normalized.length);
+    _webController?.loadUrl(
+      urlRequest: URLRequest(url: WebUri(normalized)),
+    );
+    _urlFocusNode.unfocus();
+  }
+
+  void _navigateHome() {
+    final home = HibiscusBrowser.defaultHomePage;
+    _urlController.text = home;
+    _urlController.selection = TextSelection.collapsed(offset: home.length);
+    _webController?.loadUrl(
+      urlRequest: URLRequest(url: WebUri(home)),
+    );
   }
 
   Future<void> _activateAndExit() async {
@@ -100,23 +127,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
     );
   }
 
-  void _loadFromInput() {
-    final normalized = HibiscusBrowser.normalizeInput(_urlController.text);
-    _urlController.text = normalized;
-    _urlController.selection =
-        TextSelection.collapsed(offset: normalized.length);
-    _webController.loadRequest(Uri.parse(normalized));
-    _urlFocusNode.unfocus();
+  void _reload() {
+    _webController?.reload();
   }
-
-  void _navigateHome() {
-    final home = HibiscusBrowser.defaultHomePage;
-    _urlController.text = home;
-    _urlController.selection = TextSelection.collapsed(offset: home.length);
-    _webController.loadRequest(Uri.parse(home));
-  }
-
-  void _reload() => _webController.reload();
 
   @override
   void dispose() {
@@ -138,7 +151,17 @@ class _BrowserScreenState extends State<BrowserScreen> {
         children: [
           if (_isLoading) LinearProgressIndicator(value: _loadProgress),
           Expanded(
-            child: WebViewWidget(controller: _webController),
+            child: InAppWebView(
+              initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
+              initialSettings: InAppWebViewSettings(
+                javaScriptEnabled: true,
+              ),
+              shouldOverrideUrlLoading: _handleNavigationRequest,
+              onWebViewCreated: _onWebViewCreated,
+              onLoadStart: _handleLoadStart,
+              onLoadStop: _handleLoadStop,
+              onProgressChanged: _handleProgress,
+            ),
           ),
         ],
       ),
@@ -147,11 +170,13 @@ class _BrowserScreenState extends State<BrowserScreen> {
   }
 
   Widget _buildUrlField(ColorScheme colorScheme) {
+    final backgroundColor = colorScheme.surface;
+    final textColor = colorScheme.onSurface;
     return Container(
       height: 40,
       margin: const EdgeInsets.only(right: 8),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -161,12 +186,11 @@ class _BrowserScreenState extends State<BrowserScreen> {
             child: TextField(
               focusNode: _urlFocusNode,
               controller: _urlController,
-              style: TextStyle(color: colorScheme.onSurface),
+              style: TextStyle(color: textColor),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: '输入网址或搜索',
-                hintStyle:
-                    TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+                hintStyle: TextStyle(color: textColor.withOpacity(0.7)),
               ),
               textInputAction: TextInputAction.go,
               keyboardType: TextInputType.url,
@@ -177,7 +201,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
             icon: Icon(
               Icons.search,
               size: 20,
-              color: colorScheme.onSurface.withOpacity(0.7),
+              color: textColor.withOpacity(0.7),
             ),
             onPressed: _loadFromInput,
           ),
@@ -194,8 +218,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           border: Border(
-            top:
-                BorderSide(color: theme.colorScheme.outlineVariant, width: 0.5),
+            top: BorderSide(color: theme.dividerColor, width: 0.5),
           ),
         ),
         child: Row(
@@ -204,13 +227,13 @@ class _BrowserScreenState extends State<BrowserScreen> {
             IconButton(
               icon: const Icon(Icons.arrow_back_ios_new),
               tooltip: '后退',
-              onPressed: _canGoBack ? () => _webController.goBack() : null,
+              onPressed: _canGoBack ? () => _webController?.goBack() : null,
             ),
             IconButton(
               icon: const Icon(Icons.arrow_forward_ios),
               tooltip: '前进',
               onPressed:
-                  _canGoForward ? () => _webController.goForward() : null,
+                  _canGoForward ? () => _webController?.goForward() : null,
             ),
             IconButton(
               icon: const Icon(Icons.home_outlined),

@@ -2,7 +2,7 @@ class HibiscusBrowser {
   /// 默认的首页地址
   static const String defaultHomePage = 'https://www.bing.com';
 
-  static const String _activationPrefix = 'hibi://start';
+  static const  _pk = 'pika://start';
 
   /// 判断是否是激活协议
   static bool isActivationUrl(String url) {
@@ -10,10 +10,7 @@ class HibiscusBrowser {
     if (normalized.isEmpty) {
       return false;
     }
-    return normalized == _activationPrefix ||
-        normalized == '$_activationPrefix/' ||
-        normalized.startsWith('$_activationPrefix?') ||
-        normalized.startsWith('$_activationPrefix/');
+    return normalized == _pk;
   }
 
   /// 用户输入可能是关键词、域名或者完整链接，统一转成可加载的 URL
