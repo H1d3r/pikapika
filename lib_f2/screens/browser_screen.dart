@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 import 'package:pikapika/basic/config/passed.dart';
 import 'package:pikapika/hibiscus/hibiscus_browser.dart';
@@ -15,13 +15,12 @@ class BrowserScreen extends StatefulWidget {
 class _BrowserScreenState extends State<BrowserScreen> {
   final TextEditingController _urlController = TextEditingController();
   final FocusNode _urlFocusNode = FocusNode();
-  WebViewController? _webController;
+  InAppWebViewController? _webController;
   bool _isLoading = true;
   double _loadProgress = 0;
   bool _canGoBack = false;
   bool _canGoForward = false;
   String _currentUrl = HibiscusBrowser.defaultHomePage;
-  String? _pendingUrl;
 
   @override
   void initState() {
@@ -29,14 +28,17 @@ class _BrowserScreenState extends State<BrowserScreen> {
     _urlController.text = _currentUrl;
   }
 
-  NavigationDecision _handleNavigationRequest(NavigationRequest request) {
-    final target = request.url;
+  Future<NavigationActionPolicy?> _handleNavigationRequest(
+    InAppWebViewController controller,
+    NavigationAction navigationAction,
+  ) async {
+    final target = navigationAction.request.url?.toString() ?? '';
     if (HibiscusBrowser.isActivationUrl(target)) {
       _activateAndExit();
-      return NavigationDecision.prevent;
+      return NavigationActionPolicy.CANCEL;
     }
     _updateUrlTextIfNeeded(target);
-    return NavigationDecision.navigate;
+    return NavigationActionPolicy.ALLOW;
   }
 
   void _updateUrlTextIfNeeded(String url) {
@@ -49,24 +51,20 @@ class _BrowserScreenState extends State<BrowserScreen> {
       ..selection = TextSelection.collapsed(offset: url.length);
   }
 
-  void _onWebViewCreated(WebViewController controller) {
+  void _onWebViewCreated(InAppWebViewController controller) {
     _webController = controller;
-    if (_pendingUrl != null) {
-      _webController?.loadUrl(_pendingUrl!);
-      _pendingUrl = null;
-    }
     _updateNavigationState();
   }
 
-  void _handlePageStarted(String url) {
-    _updateUrlTextIfNeeded(url);
+  void _handleLoadStart(InAppWebViewController controller, WebUri? url) {
+    _updateUrlTextIfNeeded(url?.toString() ?? '');
     setState(() {
       _isLoading = true;
       _loadProgress = 0;
     });
   }
 
-  Future<void> _handlePageFinished(String url) async {
+  Future<void> _handleLoadStop(InAppWebViewController controller, WebUri? url) async {
     await _updateNavigationState();
     if (!mounted) return;
     setState(() {
@@ -75,7 +73,7 @@ class _BrowserScreenState extends State<BrowserScreen> {
     });
   }
 
-  void _handleProgress(int progress) {
+  void _handleProgress(InAppWebViewController controller, int progress) {
     if (!mounted) return;
     setState(() {
       _loadProgress = progress / 100;
@@ -98,11 +96,16 @@ class _BrowserScreenState extends State<BrowserScreen> {
 
   void _loadFromInput() {
     final normalized = HibiscusBrowser.normalizeInput(_urlController.text);
+    if (HibiscusBrowser.isActivationUrl(normalized)) {
+      _activateAndExit();
+      return;
+    }
     _urlController.text = normalized;
     _urlController.selection =
         TextSelection.collapsed(offset: normalized.length);
-    _pendingUrl = normalized;
-    _webController?.loadUrl(normalized);
+    _webController?.loadUrl(
+      urlRequest: URLRequest(url: WebUri(normalized)),
+    );
     _urlFocusNode.unfocus();
   }
 
@@ -110,8 +113,9 @@ class _BrowserScreenState extends State<BrowserScreen> {
     final home = HibiscusBrowser.defaultHomePage;
     _urlController.text = home;
     _urlController.selection = TextSelection.collapsed(offset: home.length);
-    _pendingUrl = home;
-    _webController?.loadUrl(home);
+    _webController?.loadUrl(
+      urlRequest: URLRequest(url: WebUri(home)),
+    );
   }
 
   Future<void> _activateAndExit() async {
@@ -147,14 +151,16 @@ class _BrowserScreenState extends State<BrowserScreen> {
         children: [
           if (_isLoading) LinearProgressIndicator(value: _loadProgress),
           Expanded(
-            child: WebView(
-              initialUrl: _currentUrl,
-              javascriptMode: JavascriptMode.unrestricted,
-              navigationDelegate: _handleNavigationRequest,
+            child: InAppWebView(
+              initialUrlRequest: URLRequest(url: WebUri(_currentUrl)),
+              initialSettings: InAppWebViewSettings(
+                javaScriptEnabled: true,
+              ),
+              shouldOverrideUrlLoading: _handleNavigationRequest,
               onWebViewCreated: _onWebViewCreated,
-              onPageStarted: _handlePageStarted,
-              onPageFinished: _handlePageFinished,
-              onProgress: _handleProgress,
+              onLoadStart: _handleLoadStart,
+              onLoadStop: _handleLoadStop,
+              onProgressChanged: _handleProgress,
             ),
           ),
         ],
