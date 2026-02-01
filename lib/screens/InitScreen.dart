@@ -201,13 +201,14 @@ class _InitScreenState extends State<InitScreen> {
         // return?
       }
     }
-    if (initUrl != null) {
-      var parsed = Uri.parse(initUrl!);
+    final initialUriString = initUrl;
+    if (initialUriString != null) {
+      final parsed = Uri.tryParse(initialUriString);
       if (RegExp(r"^pika://access_key/([0-9A-z:\-]+)/$")
-          .allMatches(initUrl!)
+          .allMatches(initialUriString)
           .isNotEmpty) {
         String accessKey = RegExp(r"^pika://access_key/([0-9A-z:\-]+)/$")
-            .allMatches(initUrl!)
+            .allMatches(initialUriString)
             .first
             .group(1)!;
         Navigator.of(context).pushReplacement(mixRoute(
@@ -216,10 +217,10 @@ class _InitScreenState extends State<InitScreen> {
         ));
         return;
       } else if (RegExp(r"^pika://comic/([0-9A-z]+)/$")
-          .allMatches(initUrl!)
+          .allMatches(initialUriString)
           .isNotEmpty) {
         String comicId = RegExp(r"^pika://comic/([0-9A-z]+)/$")
-            .allMatches(initUrl!)
+            .allMatches(initialUriString)
             .first
             .group(1)!;
         Navigator.of(context).pushReplacement(mixRoute(
@@ -228,10 +229,10 @@ class _InitScreenState extends State<InitScreen> {
         ));
         return;
       } else if (RegExp(r"^https?://pika/comic/([0-9A-z]+)/$")
-          .allMatches(initUrl!)
+          .allMatches(initialUriString)
           .isNotEmpty) {
         String comicId = RegExp(r"^https?://pika/comic/([0-9A-z]+)/$")
-            .allMatches(initUrl!)
+            .allMatches(initialUriString)
             .first
             .group(1)!;
         Navigator.of(context).pushReplacement(mixRoute(
@@ -239,17 +240,17 @@ class _InitScreenState extends State<InitScreen> {
               ComicInfoScreen(comicId: comicId, holdPkz: true),
         ));
         return;
-      } else if (RegExp(r"^.*\.pkz$").allMatches(parsed.path).isNotEmpty) {
-        File file = await toFile(initUrl!);
+      } else if (parsed != null &&
+          RegExp(r"^.*\.pkz$").allMatches(parsed.path).isNotEmpty) {
+        File file = await toFile(initialUriString);
         Navigator.of(context).pushReplacement(mixRoute(
           builder: (BuildContext context) =>
               PkzArchiveScreen(pkzPath: file.path, holdPkz: true),
         ));
         return;
-      } else if (RegExp(r"^.*\.((pki)|(zip))$")
-          .allMatches(parsed.path)
-          .isNotEmpty) {
-        File file = await toFile(initUrl!);
+      } else if (parsed != null &&
+          RegExp(r"^.*\.((pki)|(zip))$").allMatches(parsed.path).isNotEmpty) {
+        File file = await toFile(initialUriString);
         Navigator.of(context).pushReplacement(
           mixRoute(
             builder: (BuildContext context) =>
