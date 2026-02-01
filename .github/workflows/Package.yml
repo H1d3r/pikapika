@@ -236,6 +236,7 @@ jobs:
           sed -i "s/1.7.10/1.3.50/g" android/app/build.gradle
           sed -i "s/fontFamilyFallback/\/\/fontFamilyFallback/g" lib/basic/config/Themes.dart
           sed -i "s/easy_localization: ^3.0.7+1/easy_localization: ^3.0.0/g" pubspec.yaml
+          sed -i "s/webview_flutter: \^4.0.0/webview_flutter: 2.0.17/g" pubspec.yaml
           flutter pub get
 
       - name: Upgrade deps version (flutter2 mac)
@@ -251,6 +252,7 @@ jobs:
           gsed -i "s/Icons.energy_savings_leaf/Icons.ad_units/g" lib/screens/SettingsScreen.dart
           gsed -i "s/fontFamilyFallback/\/\/fontFamilyFallback/g" lib/basic/config/Themes.dart
           gsed -i "s/easy_localization: ^3.0.7+1/easy_localization: ^3.0.0/g" pubspec.yaml
+          gsed -i "s/webview_flutter: \^4.0.0/webview_flutter: 2.0.17/g" pubspec.yaml
           flutter pub get
 
       - name: Build (windows)
@@ -318,31 +320,30 @@ jobs:
         run: |
           sh scripts/sign-apk-github-actions.sh
 
-      - if: steps.need_build.outputs.skip_build != 'true' && matrix.config.target == 'ios'
+      - if: steps.check_asset.outputs.skip_build != 'true' && matrix.config.target == 'ios'
         name: 'Upload Artifact (iOS)'
         uses: actions/upload-artifact@v4
         with:
           name: 'nosign.ipa'
           path: 'build/nosign.ipa'
           retention-days: 3
-      - if: steps.need_build.outputs.skip_build != 'true' && ( matrix.config.target == 'android-arm32' || matrix.config.target == 'android-arm64' || matrix.config.target == 'android-x86_64' )
+      - if: steps.check_asset.outputs.skip_build != 'true' && ( matrix.config.target == 'android-arm32' || matrix.config.target == 'android-arm64' || matrix.config.target == 'android-x86_64' )
         name: 'Upload Artifact (Android)'
         uses: actions/upload-artifact@v4
         with:
           name: 'app-release-${{ matrix.config.target }}.apk'
           path: 'build/app/outputs/flutter-apk/app-release.apk'
           retention-days: 3
-      - if: steps.need_build.outputs.skip_build != 'true' && matrix.config.target == 'linux'
+      - if: steps.check_asset.outputs.skip_build != 'true' && matrix.config.target == 'linux'
         name: 'Upload Artifact (Linux)'
         uses: actions/upload-artifact@v4
         with:
           name: 'build.AppImage'
           path: 'build/build.AppImage'
           retention-days: 3
-      - if: steps.need_build.outputs.skip_build != 'true' && matrix.config.target == 'macos'
+      - if: steps.check_asset.outputs.skip_build != 'true' && matrix.config.target == 'macos'
         name: 'Upload Artifact (MacOS)'
         uses: actions/upload-artifact@v4
         with:
           name: 'build.dmg'
           path: 'build/build.dmg'
-
