@@ -368,6 +368,7 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
   late int _startIndex;
   late int _current;
   late int _slider;
+  late bool _hasNextEpCache;
 
   void _initCurrent() {
     if (widget.struct.initPosition != null &&
@@ -378,6 +379,18 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
     }
     _current = _startIndex;
     _slider = _startIndex;
+    _updateHasNextEp();
+  }
+
+  void _updateHasNextEp() {
+    _hasNextEpCache =
+        widget.struct.epNameMap.containsKey(widget.struct.epOrder + 1);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ImageReaderContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateHasNextEp();
   }
 
   void _onCurrentChange(int index) {
@@ -878,15 +891,14 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
   }
 
   Future _onNextAction() async {
-    if (widget.struct.epNameMap.containsKey(widget.struct.epOrder + 1)) {
+    if (_hasNextEp()) {
       widget.struct.onChangeEp(widget.struct.epOrder + 1);
     } else {
       defaultToast(context, tr('components.image_reader.already_at_the_end'));
     }
   }
 
-  bool _hasNextEp() =>
-      widget.struct.epNameMap.containsKey(widget.struct.epOrder + 1);
+  bool _hasNextEp() => _hasNextEpCache;
 
   double _topBarHeight() => Scaffold.of(context).appBarMaxHeight ?? 0;
 
