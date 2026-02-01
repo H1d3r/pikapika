@@ -237,6 +237,7 @@ jobs:
           sed -i "s/fontFamilyFallback/\/\/fontFamilyFallback/g" lib/basic/config/Themes.dart
           sed -i "s/easy_localization: ^3.0.7+1/easy_localization: ^3.0.0/g" pubspec.yaml
           sed -i "s/webview_flutter: \^4.0.0/webview_flutter: 2.0.14/g" pubspec.yaml
+          cp -rf lib_f2/* lib/
           flutter pub get
 
       - name: Upgrade deps version (flutter2 mac)
@@ -253,6 +254,7 @@ jobs:
           gsed -i "s/fontFamilyFallback/\/\/fontFamilyFallback/g" lib/basic/config/Themes.dart
           gsed -i "s/easy_localization: ^3.0.7+1/easy_localization: ^3.0.0/g" pubspec.yaml
           gsed -i "s/webview_flutter: \^4.0.0/webview_flutter: 2.0.14/g" pubspec.yaml
+          cp -rf lib_f2/* lib/
           flutter pub get
 
       - name: Build (windows)
