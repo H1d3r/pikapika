@@ -53,7 +53,7 @@ import 'package:pikapika/basic/config/passed.dart';
 import 'package:pikapika/screens/AccessKeyReplaceScreen.dart';
 import 'package:pikapika/screens/ComicInfoScreen.dart';
 import 'package:pikapika/screens/PkzArchiveScreen.dart';
-import 'package:pikapika/screens/browser_screen.dart';
+import 'package:pikapika/screens/calculator_screen.dart';
 import 'package:pikapika/screens/components/ContentLoading.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:uri_to_file/uri_to_file.dart';
@@ -184,7 +184,7 @@ class _InitScreenState extends State<InitScreen> {
     if (!currentPassed()) {
       Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (BuildContext context) {
-          return const BrowserScreen();
+          return const CalculatorScreen();
         },
       ));
       return;
