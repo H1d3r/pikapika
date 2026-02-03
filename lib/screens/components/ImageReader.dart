@@ -29,6 +29,7 @@ import 'package:pikapika/basic/config/ThreeKeepRight.dart';
 import 'package:pikapika/basic/config/VolumeController.dart';
 import 'package:pikapika/screens/components/PkzImages.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:zoomable_positioned_list/zoomable_positioned_list.dart' as zoomable;
 import 'gesture_zoom_box.dart';
 import '../../basic/config/IconLoading.dart';
 import '../../basic/config/ReaderBackgroundColor.dart';
@@ -1455,14 +1456,207 @@ class _WebToonReaderImageState extends State<_WebToonReaderImage> {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class _WebToonZoomReaderState extends _WebToonReaderState {
+class _WebToonZoomReaderState extends _ImageReaderContentState {
+  var _controllerTime = DateTime.now().millisecondsSinceEpoch + 400;
+  late final List<Size?> _trueSizes = [];
+  late final zoomable.ItemScrollController _itemScrollController;
+  late final zoomable.ItemPositionsListener _itemPositionsListener;
+
   @override
+  void initState() {
+    for (var e in widget.struct.images) {
+      if (e.pkzFile != null &&
+          e.width != null &&
+          e.height != null &&
+          e.width! > 0 &&
+          e.height! > 0) {
+        _trueSizes.add(Size(e.width!.toDouble(), e.height!.toDouble()));
+      } else if (e.downloadLocalPath != null) {
+        _trueSizes.add(Size(e.width!.toDouble(), e.height!.toDouble()));
+      } else {
+        _trueSizes.add(null);
+      }
+    }
+    _itemScrollController = zoomable.ItemScrollController();
+    _itemPositionsListener = zoomable.ItemPositionsListener.create();
+    _itemPositionsListener.itemPositions.addListener(_onListCurrentChange);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _itemPositionsListener.itemPositions.removeListener(_onListCurrentChange);
+    super.dispose();
+  }
+
+  void _onListCurrentChange() {
+    if (_itemPositionsListener.itemPositions.value.isEmpty) return;
+    var to = _itemPositionsListener.itemPositions.value.first.index;
+    if (to >= 0 && to < widget.struct.images.length) {
+      super._onCurrentChange(to);
+    }
+  }
+
+  @override
+  void _needJumpTo(int index, bool animation) {
+    if (noAnimation() || animation == false) {
+      _itemScrollController.jumpTo(
+        index: index,
+      );
+    } else {
+      if (DateTime.now().millisecondsSinceEpoch < _controllerTime) {
+        return;
+      }
+      _controllerTime = DateTime.now().millisecondsSinceEpoch + 400;
+      _itemScrollController.scrollTo(
+        index: index,
+        duration: const Duration(milliseconds: 400),
+      );
+    }
+  }
+
+  @override
+  void _needScrollForward() {}
+
+  @override
+  void _needScrollBackward() {}
+
+  @override
+  Widget _buildViewer() {
+    return Container(
+      decoration: BoxDecoration(
+        color: readerBackgroundColorObj,
+      ),
+      child: _buildList(),
+    );
+  }
+
   Widget _buildList() {
-    return GestureZoomBox(
-      minScale: readerZoomMinScale,
-      maxScale: readerZoomMaxScale,
-      doubleTapScale: readerZoomMaxScale,
-      child: super._buildList(),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        List<Widget> _images = [];
+        for (var index = 0; index < widget.struct.images.length; index++) {
+          late Size renderSize;
+          if (_trueSizes[index] != null) {
+            if (widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM) {
+              renderSize = Size(
+                constraints.maxWidth,
+                constraints.maxWidth *
+                    _trueSizes[index]!.height /
+                    _trueSizes[index]!.width,
+              );
+            } else {
+              var maxHeight = constraints.maxHeight -
+                  super._topBarHeight() -
+                  super._bottomBarHeight() -
+                  MediaQuery.of(context).padding.bottom;
+              renderSize = Size(
+                maxHeight *
+                    _trueSizes[index]!.width /
+                    _trueSizes[index]!.height,
+                maxHeight,
+              );
+            }
+          } else {
+            if (widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM) {
+              renderSize = Size(constraints.maxWidth, constraints.maxWidth / 2);
+            } else {
+              renderSize =
+                  Size(constraints.maxWidth / 2, constraints.maxHeight);
+            }
+          }
+          var currentIndex = index;
+          onTrueSize(Size size) {
+            setState(() {
+              _trueSizes[currentIndex] = size;
+            });
+          }
+
+          var e = widget.struct.images[index];
+          if (e.pkzFile != null) {
+            _images.add(_WebToonPkzImage(
+              width: e.width!,
+              height: e.height!,
+              format: e.format!,
+              size: renderSize,
+              onTrueSize: onTrueSize,
+              pkzFile: e.pkzFile!,
+            ));
+          } else if (e.downloadLocalPath != null) {
+            _images.add(_WebToonDownloadImage(
+              fileServer: e.fileServer,
+              path: e.path,
+              localPath: e.downloadLocalPath!,
+              fileSize: e.fileSize!,
+              width: e.width!,
+              height: e.height!,
+              format: e.format!,
+              size: renderSize,
+              onTrueSize: onTrueSize,
+            ));
+          } else {
+            _images.add(_WebToonRemoteImage(
+              e.fileServer,
+              e.path,
+              renderSize,
+              onTrueSize,
+            ));
+          }
+        }
+        return zoomable.ZoomablePositionedList.builder(
+          minScale: readerZoomMinScale,
+          maxScale: readerZoomMaxScale,
+          doubleTapScale: readerZoomDoubleTapScale,
+          enableDoubleTapZoom: widget.fullScreenAction !=
+                  FullScreenAction.TOUCH_DOUBLE &&
+              widget.fullScreenAction != FullScreenAction.TOUCH_DOUBLE_ONCE_NEXT,
+          initialScrollIndex: super._startIndex,
+          scrollDirection:
+              widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM
+                  ? Axis.vertical
+                  : Axis.horizontal,
+          reverse: widget.pagerDirection == ReaderDirection.RIGHT_TO_LEFT,
+          padding: EdgeInsets.only(
+            top: super._topBarHeight(),
+            bottom: widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM
+                ? 130
+                : (super._bottomBarHeight() +
+                    MediaQuery.of(context).padding.bottom),
+          ),
+          itemScrollController: _itemScrollController,
+          itemPositionsListener: _itemPositionsListener,
+          itemCount: widget.struct.images.length + 1,
+          itemBuilder: (BuildContext context, int index) {
+            if (widget.struct.images.length == index) {
+              return _buildNextEp();
+            }
+            return _images[index];
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildNextEp() {
+    return Container(
+      color: Colors.transparent,
+      padding: const EdgeInsets.all(20),
+      child: MaterialButton(
+        onPressed: () {
+          if (super._hasNextEp()) {
+            super._onNextAction();
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
+        textColor: invertColor(readerBackgroundColorObj),
+        child: Container(
+          padding: const EdgeInsets.only(top: 40, bottom: 40),
+          child: Text(super._hasNextEp()
+              ? tr('components.image_reader.next_chapter')
+              : tr('components.image_reader.end_reading')),
+        ),
+      ),
     );
   }
 }

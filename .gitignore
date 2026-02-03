@@ -64,3 +64,6 @@ go.work
 
 # FVM Version Cache
 .fvm/
+
+tmp/
+.tmp/
