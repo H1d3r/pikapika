@@ -72,6 +72,7 @@ import '../basic/config/IgnoreUpgradeConfirm.dart';
 import '../basic/config/IsPro.dart';
 import '../basic/config/ReaderBackgroundColor.dart';
 import '../basic/config/ReaderScrollByScreenPercentage.dart';
+import '../basic/config/ReaderZoomScale.dart';
 import '../basic/config/ReaderTwoPageDirection.dart';
 import '../basic/config/ThreeKeepRight.dart';
 import '../basic/config/VolumeNextChapter.dart';
@@ -177,6 +178,7 @@ class _InitScreenState extends State<InitScreen> {
     await initReaderTwoPageDirection();
     await initHiddenWords();
     await initReaderScrollByScreenPercentage();
+    await initReaderZoomScale();
     await initIgnoreInfoHistory();
     await initThreeKeepRight();
     await initCopyFullNameTemplate();

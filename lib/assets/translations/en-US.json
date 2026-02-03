@@ -337,6 +337,10 @@
       "title": "Free zoom reader page distance",
       "screen_size": "Screen size"
     },
+    "reader_zoom": {
+      "out_title": "Zoom out multiplier (min scale)",
+      "in_title": "Zoom in multiplier (max scale)"
+    },
     "reader_slider_position": {
       "title": "Slider position",
       "choose": "Choose slider position",

@@ -32,6 +32,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../basic/config/IconLoading.dart';
 import '../../basic/config/ReaderBackgroundColor.dart';
 import '../../basic/config/ReaderScrollByScreenPercentage.dart';
+import '../../basic/config/ReaderZoomScale.dart';
 import '../../basic/config/UseApiLoadImage.dart';
 import '../../basic/config/VolumeNextChapter.dart';
 import '../FilePhotoViewScreen.dart';
@@ -1457,7 +1458,12 @@ class _WebToonReaderImageState extends State<_WebToonReaderImage> {
 class _WebToonZoomReaderState extends _WebToonReaderState {
   @override
   Widget _buildList() {
-    return GestureZoomBox(child: super._buildList());
+    return GestureZoomBox(
+      minScale: readerZoomMinScale,
+      maxScale: readerZoomMaxScale,
+      doubleTapScale: readerZoomMaxScale,
+      child: super._buildList(),
+    );
   }
 }
 
@@ -1651,8 +1657,8 @@ class _ListViewReaderState extends _ImageReaderContentState
         );
         var viewer = InteractiveViewer(
           transformationController: _transformationController,
-          minScale: 1,
-          maxScale: 2,
+          minScale: readerZoomMinScale,
+          maxScale: readerZoomMaxScale,
           child: list,
         );
         if (FullScreenAction.TOUCH_DOUBLE == currentFullScreenAction() ||
@@ -1704,12 +1710,14 @@ class _ListViewReaderState extends _ImageReaderContentState
       _transformationController.value = Matrix4.identity();
     } else {
       var position = _doubleTapDetails.localPosition;
-      var animation = Tween(begin: 0, end: 1.0).animate(_animationController);
+      final targetScale = readerZoomMaxScale;
+      var animation = Tween(begin: 0.0, end: 1.0).animate(_animationController);
       animation.addListener(() {
+        final scale = 1.0 + (targetScale - 1.0) * animation.value;
         _transformationController.value = Matrix4.identity()
           ..translate(
-              -position.dx * animation.value, -position.dy * animation.value)
-          ..scale(animation.value + 1.0);
+              -position.dx * (scale - 1.0), -position.dy * (scale - 1.0))
+          ..scale(scale);
       });
       _animationController.forward(from: 0);
     }
@@ -1748,6 +1756,9 @@ class _GalleryReaderState extends _ImageReaderContentState {
                 FullScreenAction.TOUCH_DOUBLE_ONCE_NEXT ==
                     currentFullScreenAction(),
         imageProvider: ip,
+        initialScale: PhotoViewComputedScale.contained,
+        minScale: PhotoViewComputedScale.contained * readerZoomMinScale,
+        maxScale: PhotoViewComputedScale.contained * readerZoomMaxScale,
         errorBuilder: (b, e, s) {
           print("$e,$s");
           return LayoutBuilder(
@@ -2017,6 +2028,9 @@ class _TwoPageGalleryReaderState extends _ImageReaderContentState {
               FullScreenAction.TOUCH_DOUBLE == currentFullScreenAction() ||
                   FullScreenAction.TOUCH_DOUBLE_ONCE_NEXT ==
                       currentFullScreenAction(),
+          initialScale: PhotoViewComputedScale.contained,
+          minScale: PhotoViewComputedScale.contained * readerZoomMinScale,
+          maxScale: PhotoViewComputedScale.contained * readerZoomMaxScale,
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               return Row(

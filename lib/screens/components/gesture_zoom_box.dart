@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 class GestureZoomBox extends StatefulWidget {
+  final double minScale;
   final double maxScale;
   final double doubleTapScale;
   final Widget child;
@@ -9,11 +10,14 @@ class GestureZoomBox extends StatefulWidget {
 
   const GestureZoomBox({
     Key? key,
+    this.minScale = 1.0,
     this.maxScale = 2.0,
     this.doubleTapScale = 2.0,
     required this.child,
     this.duration = const Duration(milliseconds: 200),
   })  : assert(maxScale >= 1.0),
+        assert(minScale > 0),
+        assert(maxScale >= minScale),
         assert(doubleTapScale >= 1.0 && doubleTapScale <= maxScale),
         super(key: key);
 
@@ -203,14 +207,14 @@ class _GestureZoomBoxState extends State<GestureZoomBox>
     if (size == null) {
       return;
     }
-    if (_scale < 1.0) {
-      // 缩放值过小，恢复到 1.0
-      _animationScale(1.0);
+    if (_scale < widget.minScale) {
+      // 缩放值过小，恢复到最小值
+      _animationScale(widget.minScale);
     } else if (_scale > widget.maxScale) {
       // 缩放值过大，恢复到最大值
       _animationScale(widget.maxScale);
     }
-    if (_scale <= 1.0) {
+    if (_scale <= widget.minScale) {
       // 缩放值过小，修改偏移值，使内容居中
       _animationOffset(Offset.zero);
     } else if (_isDragging) {

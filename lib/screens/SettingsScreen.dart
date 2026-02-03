@@ -55,6 +55,7 @@ import '../basic/config/HideOnlineFavorite.dart';
 import '../basic/config/IgnoreInfoHistory.dart';
 import '../basic/config/ImageFilter.dart';
 import '../basic/config/ReaderScrollByScreenPercentage.dart';
+import '../basic/config/ReaderZoomScale.dart';
 import '../basic/config/ReaderTwoPageDirection.dart';
 import '../basic/config/StartupPic.dart';
 import '../basic/config/ThreeKeepRight.dart';
@@ -169,6 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 autoFullScreenSetting(),
                 fullScreenActionSetting(),
                 readerScrollByScreenPercentageSetting(),
+                readerZoomMinScaleSetting(),
+                readerZoomMaxScaleSetting(),
                 const Divider(),
                 volumeControllerSetting(),
                 volumeNextChapterSetting(),
