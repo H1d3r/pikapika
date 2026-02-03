@@ -337,6 +337,11 @@
       "title": "자유 확대 리더 페이지 거리",
       "screen_size": "화면 크기"
     },
+    "reader_zoom": {
+      "out_title": "축소 배율 (최소 확대)",
+      "in_title": "확대 배율 (최대 확대)",
+      "double_tap_title": "더블탭 확대 배율"
+    },
     "reader_slider_position": {
       "title": "슬라이더 위치",
       "choose": "슬라이더 위치 선택",

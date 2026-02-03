@@ -337,6 +337,11 @@
       "title": "自由放大閱讀器翻頁距離",
       "screen_size": "屏幕尺寸"
     },
+    "reader_zoom": {
+      "out_title": "縮小倍數（最小縮放）",
+      "in_title": "放大倍數（最大縮放）",
+      "double_tap_title": "雙擊縮放倍數"
+    },
     "reader_slider_position": {
       "title": "滾動條的位置",
       "choose": "選擇滑動條位置",

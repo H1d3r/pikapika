@@ -5,12 +5,15 @@ import '../Method.dart';
 
 const _readerZoomMinPropertyName = "readerZoomMinScale";
 const _readerZoomMaxPropertyName = "readerZoomMaxScale";
+const _readerZoomDoubleTapPropertyName = "readerZoomDoubleTapScale";
 
 late double _readerZoomMinScale;
 late double _readerZoomMaxScale;
+late double _readerZoomDoubleTapScale;
 
 double get readerZoomMinScale => _readerZoomMinScale;
 double get readerZoomMaxScale => _readerZoomMaxScale;
+double get readerZoomDoubleTapScale => _readerZoomDoubleTapScale;
 
 Future<void> initReaderZoomScale() async {
   _readerZoomMinScale =
@@ -18,6 +21,9 @@ Future<void> initReaderZoomScale() async {
           0.1;
   _readerZoomMaxScale =
       double.tryParse(await method.loadProperty(_readerZoomMaxPropertyName, "2.0")) ??
+          2.0;
+  _readerZoomDoubleTapScale =
+      double.tryParse(await method.loadProperty(_readerZoomDoubleTapPropertyName, "2.0")) ??
           2.0;
 }
 
@@ -70,6 +76,35 @@ Widget readerZoomMaxScaleSetting() {
             });
             method.saveProperty(
               _readerZoomMaxPropertyName,
+              newValue.toStringAsFixed(1),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget readerZoomDoubleTapScaleSetting() {
+  return StatefulBuilder(
+    builder: (BuildContext context, void Function(void Function()) setState) {
+      return ListTile(
+        title: Text(
+          "${tr("settings.reader_zoom.double_tap_title")} : ${_readerZoomDoubleTapScale.toStringAsFixed(1)}x",
+        ),
+        subtitle: Slider(
+          min: 1.5,
+          max: 5.0,
+          divisions: 7,
+          value: _readerZoomDoubleTapScale.clamp(1.5, 5.0).toDouble(),
+          label: "${_readerZoomDoubleTapScale.toStringAsFixed(1)}x",
+          onChanged: (double value) {
+            final newValue = (value * 2).roundToDouble() / 2;
+            setState(() {
+              _readerZoomDoubleTapScale = newValue;
+            });
+            method.saveProperty(
+              _readerZoomDoubleTapPropertyName,
               newValue.toStringAsFixed(1),
             );
           },

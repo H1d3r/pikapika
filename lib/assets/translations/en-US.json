@@ -339,7 +339,8 @@
     },
     "reader_zoom": {
       "out_title": "Zoom out multiplier (min scale)",
-      "in_title": "Zoom in multiplier (max scale)"
+      "in_title": "Zoom in multiplier (max scale)",
+      "double_tap_title": "Double tap zoom scale"
     },
     "reader_slider_position": {
       "title": "Slider position",

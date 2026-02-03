@@ -29,6 +29,7 @@ import 'package:pikapika/basic/config/ThreeKeepRight.dart';
 import 'package:pikapika/basic/config/VolumeController.dart';
 import 'package:pikapika/screens/components/PkzImages.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'gesture_zoom_box.dart';
 import '../../basic/config/IconLoading.dart';
 import '../../basic/config/ReaderBackgroundColor.dart';
 import '../../basic/config/ReaderScrollByScreenPercentage.dart';
@@ -36,7 +37,6 @@ import '../../basic/config/ReaderZoomScale.dart';
 import '../../basic/config/UseApiLoadImage.dart';
 import '../../basic/config/VolumeNextChapter.dart';
 import '../FilePhotoViewScreen.dart';
-import 'gesture_zoom_box.dart';
 
 import 'Images.dart';
 
@@ -1710,7 +1710,7 @@ class _ListViewReaderState extends _ImageReaderContentState
       _transformationController.value = Matrix4.identity();
     } else {
       var position = _doubleTapDetails.localPosition;
-      final targetScale = readerZoomMaxScale;
+      final targetScale = readerZoomDoubleTapScale.clamp(1.0, readerZoomMaxScale);
       var animation = Tween(begin: 0.0, end: 1.0).animate(_animationController);
       animation.addListener(() {
         final scale = 1.0 + (targetScale - 1.0) * animation.value;

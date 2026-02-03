@@ -337,6 +337,11 @@
       "title": "フリーズームリーダーページ距離",
       "screen_size": "画面サイズ"
     },
+    "reader_zoom": {
+      "out_title": "縮小倍率（最小ズーム）",
+      "in_title": "拡大倍率（最大ズーム）",
+      "double_tap_title": "ダブルタップズーム倍率"
+    },
     "reader_slider_position": {
       "title": "スライダー位置",
       "choose": "スライダー位置を選択",

@@ -172,6 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 readerScrollByScreenPercentageSetting(),
                 readerZoomMinScaleSetting(),
                 readerZoomMaxScaleSetting(),
+                readerZoomDoubleTapScaleSetting(),
                 const Divider(),
                 volumeControllerSetting(),
                 volumeNextChapterSetting(),
