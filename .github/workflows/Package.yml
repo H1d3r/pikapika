@@ -41,21 +41,21 @@ jobs:
           - target: ios
             host: macos-latest
             flutter_version: '3.13.9'
-            go_version: '1.23'
+            go_version: '1.24'
           - target: android-arm32
             host: ubuntu-latest
             flutter_version: '3.13.9'
-            go_version: '1.23'
+            go_version: '1.24'
             java: '11'
           - target: android-arm64
             host: ubuntu-latest
             flutter_version: '3.13.9'
-            go_version: '1.23'
+            go_version: '1.24'
             java: '11'
           - target: android-x86_64
             host: ubuntu-latest
             flutter_version: '3.13.9'
-            go_version: '1.23'
+            go_version: '1.24'
             java: '11'
 
 

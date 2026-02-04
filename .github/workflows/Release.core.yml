@@ -8,7 +8,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GO_VERSION: "1.23"
+  GO_VERSION: "1.24"
   GO_MOBILE_VERSION: v0.0.0-20241213221354-a87c1cf6cf46
 
 jobs:
