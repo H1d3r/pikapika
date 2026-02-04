@@ -226,6 +226,6 @@ class TopConfirm {
       );
     });
     final overlay = Overlay.of(context);
-    overlay.insert(overlayEntry);
+    overlay?.insert(overlayEntry);
   }
 }
