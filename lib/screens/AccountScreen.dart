@@ -9,6 +9,7 @@ import 'package:pikapika/basic/config/IsPro.dart';
 import 'package:pikapika/basic/enum/ErrorTypes.dart';
 import 'package:pikapika/screens/RegisterScreen.dart';
 import 'package:pikapika/screens/components/NetworkSetting.dart';
+import 'package:pikapika/screens/components/RecommendLinksPanel.dart';
 
 import '../basic/config/IconLoading.dart';
 import '../basic/config/Version.dart';
@@ -108,7 +109,8 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           ListTile(
             title: Text(tr("screen.account.username")),
-            subtitle: Text(_username == "" ? tr("screen.account.not_set") : _username),
+            subtitle: Text(
+                _username == "" ? tr("screen.account.not_set") : _username),
             onTap: () async {
               String? input = await displayTextInputDialog(
                 context,
@@ -126,7 +128,8 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           ListTile(
             title: Text(tr("screen.account.password")),
-            subtitle: Text(_password == "" ? tr("screen.account.not_set") : '\u2022' * 10),
+            subtitle: Text(
+                _password == "" ? tr("screen.account.not_set") : '\u2022' * 10),
             onTap: () async {
               String? input = await displayTextInputDialog(
                 context,
@@ -181,6 +184,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               const ForgotPasswordScreen()),
                     ).then((value) => _loadProperties()),
             )),
+          ),
+          const RecommendLinksPanel(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
           ),
         ],
       ),

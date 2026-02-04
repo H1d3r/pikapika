@@ -35,7 +35,7 @@ Future<String> currentChooserRoot() async {
     late bool g;
     if (androidVersion < 30) {
       g = await Permission.storage.request().isGranted;
-    }else{
+    } else {
       g = await Permission.manageExternalStorage.request().isGranted;
     }
     if (!g) {
@@ -66,7 +66,7 @@ Widget chooserRootSetting() {
   return StatefulBuilder(
     builder: (BuildContext context, void Function(void Function()) setState) {
       return ListTile(
-        title: const Text("文件夹选择器默认路径"),
+        title: Text(tr('settings.chooser_root.title')),
         subtitle: Text(_chooserRoot),
         onTap: () async {
           await _inputChooserRoot(context);

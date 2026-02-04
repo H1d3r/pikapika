@@ -36,6 +36,7 @@ import 'package:pikapika/basic/config/Quality.dart';
 import 'package:pikapika/basic/config/ReaderDirection.dart';
 import 'package:pikapika/basic/config/ReaderSliderPosition.dart';
 import 'package:pikapika/basic/config/ReaderType.dart';
+import 'package:pikapika/basic/config/RecommendLinks.dart';
 import 'package:pikapika/basic/config/ShadowCategories.dart';
 import 'package:pikapika/basic/config/ShowCommentAtDownload.dart';
 import 'package:pikapika/basic/config/Themes.dart';
@@ -185,6 +186,7 @@ class _InitScreenState extends State<InitScreen> {
     await initThreeKeepRight();
     await initCopyFullNameTemplate();
     await initPassed();
+    await initRecommendLinks();
     if (!currentPassed()) {
       Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (BuildContext context) {

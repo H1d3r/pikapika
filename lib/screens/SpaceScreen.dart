@@ -13,6 +13,7 @@ import 'package:pikapika/screens/ProScreen.dart';
 import 'package:pikapika/screens/ViewLogsScreen.dart';
 import 'package:pikapika/basic/Method.dart';
 import 'package:pikapika/basic/config/WebDav.dart';
+import 'package:pikapika/screens/components/RecommendLinksPanel.dart';
 
 import '../basic/config/IconLoading.dart';
 import '../basic/config/IsPro.dart';
@@ -61,8 +62,8 @@ class _SpaceScreenState extends State<SpaceScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              bool result =
-                  await confirmDialog(context, tr('screen.space.logout'), tr('screen.space.logout_confirm'));
+              bool result = await confirmDialog(context,
+                  tr('screen.space.logout'), tr('screen.space.logout_confirm'));
               if (result) {
                 await method.clearToken();
                 await method.setPassword("");
@@ -161,6 +162,9 @@ class _SpaceScreenState extends State<SpaceScreen> {
             title: Text(tr('screen.space.my_downloads')),
           ),
           const Divider(),
+          const RecommendLinksPanel(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+          ),
         ],
       ),
     );

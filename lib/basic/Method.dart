@@ -31,6 +31,16 @@ class Method {
     });
   }
 
+  /// 远程推荐链接（来自 pikapika-config）
+  Future<Map<String, String>> configLinks() async {
+    final rsp = await _flatInvoke("configLinks", "");
+    final decoded = jsonDecode(rsp);
+    if (decoded is! Map) {
+      return {};
+    }
+    return decoded.map((key, value) => MapEntry("$key", "$value"));
+  }
+
   /// 保存配置文件
   Future<dynamic> saveProperty(String propertyName, String value) {
     return _flatInvoke("saveProperty", {
@@ -1158,7 +1168,8 @@ class Method {
 
   // 本地收藏夹方法
   Future<LocalFavoriteFolder> createLocalFavoriteFolder(String name) async {
-    String data = await _flatInvoke("createLocalFavoriteFolder", {"name": name});
+    String data =
+        await _flatInvoke("createLocalFavoriteFolder", {"name": name});
     return LocalFavoriteFolder.fromJson(jsonDecode(data));
   }
 
@@ -1186,7 +1197,8 @@ class Method {
     return int.parse(data);
   }
 
-  Future addLocalFavoriteComic(String comicId, String folderId, {String info = ""}) async {
+  Future addLocalFavoriteComic(String comicId, String folderId,
+      {String info = ""}) async {
     return _flatInvoke("addLocalFavoriteComic", {
       "comicId": comicId,
       "folderId": folderId,
@@ -1217,8 +1229,10 @@ class Method {
     }
   }
 
-  Future<List<LocalFavoriteComic>> listLocalFavoriteComics(String folderId) async {
-    String data = await _flatInvoke("listLocalFavoriteComics", {"folderId": folderId});
+  Future<List<LocalFavoriteComic>> listLocalFavoriteComics(
+      String folderId) async {
+    String data =
+        await _flatInvoke("listLocalFavoriteComics", {"folderId": folderId});
     List list = jsonDecode(data);
     return list.map((e) => LocalFavoriteComic.fromJson(e)).toList();
   }
