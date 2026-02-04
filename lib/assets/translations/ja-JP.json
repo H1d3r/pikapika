@@ -334,8 +334,14 @@
       "right_to_left": "右から左へ"
     },
     "reader_scroll_by_screen_percentage": {
-      "title": "フリーズームリーダーページ距離",
+      "title": "距離でページをめくる長さ",
       "screen_size": "画面サイズ"
+    },
+    "web_toon_scroll_mode": {
+      "title": "WebToon ページめくりモード",
+      "choose": "WebToon ページめくりモードを選択",
+      "image": "画像",
+      "screen": "距離"
     },
     "reader_zoom": {
       "out_title": "縮小倍率（最小ズーム）",

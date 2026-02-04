@@ -34,6 +34,7 @@ import 'gesture_zoom_box.dart';
 import '../../basic/config/IconLoading.dart';
 import '../../basic/config/ReaderBackgroundColor.dart';
 import '../../basic/config/ReaderScrollByScreenPercentage.dart';
+import '../../basic/config/WebToonScrollMode.dart';
 import '../../basic/config/ReaderZoomScale.dart';
 import '../../basic/config/UseApiLoadImage.dart';
 import '../../basic/config/VolumeNextChapter.dart';
@@ -112,6 +113,15 @@ class PkzFile {
   final String path;
 
   PkzFile(this.pkzPath, this.path);
+}
+
+class ImageReaderItemPosition {
+  final int index;
+  final double itemLeadingEdge;
+  final double itemTrailingEdge;
+
+  ImageReaderItemPosition(
+      this.index, this.itemLeadingEdge, this.itemTrailingEdge);
 }
 
 class ReaderImageInfo {
@@ -278,8 +288,88 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
 
   void _needScrollBackward();
 
+  double? get _remainingScrollHeight => null;
+
   // 记录了是否切换了音量
   late bool _listVolume;
+  
+  // 屏幕上的多个块的信息
+  List<ImageReaderItemPosition> _currentPositions = [];
+
+  void _onPositionsChange(List<ImageReaderItemPosition> positions) {
+    if (positions.isEmpty) return;
+    _currentPositions = positions;
+    var first = positions.reduce((a, b) => a.index < b.index ? a : b);
+    _onCurrentChange(first.index);
+  }
+
+  void _commonWebToonScrollForward(
+    Function(double offset) animateScroll,
+    Function(int index) jumpTo,
+  ) {
+    if (currentWebToonScrollMode() == WebToonScrollMode.SCREEN) {
+      double s;
+      if (widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM) {
+        s = MediaQuery.of(context).size.height;
+      } else {
+        s = MediaQuery.of(context).size.width;
+      }
+      var scrollSize = s * readerScrollByScreenPercentage;
+      animateScroll(scrollSize);
+    } else {
+      if (_currentPositions.isNotEmpty) {
+        var min =
+            _currentPositions.reduce((a, b) => a.index < b.index ? a : b);
+        var max =
+            _currentPositions.reduce((a, b) => a.index > b.index ? a : b);
+        if (min.index != max.index) {
+          // 多个图片
+          // 只要最后一个图片没有显示完全, 就把最后一个图片对齐
+          if (max.itemTrailingEdge > 1) {
+            jumpTo(max.index);
+          } else {
+            jumpTo(max.index + 1);
+          }
+        } else {
+          // 一个图片
+          jumpTo(max.index + 1);
+        }
+      } else {
+        jumpTo(_current + 1);
+      }
+    }
+  }
+
+  void _commonWebToonScrollBackward(
+    Function(double offset) animateScroll,
+    Function(int index) jumpTo,
+  ) {
+    if (currentWebToonScrollMode() == WebToonScrollMode.SCREEN) {
+      double s;
+      if (widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM) {
+        s = MediaQuery.of(context).size.height;
+      } else {
+        s = MediaQuery.of(context).size.width;
+      }
+      var scrollSize = s * readerScrollByScreenPercentage;
+      animateScroll(-scrollSize);
+    } else {
+      if (_currentPositions.isNotEmpty) {
+        var min =
+            _currentPositions.reduce((a, b) => a.index < b.index ? a : b);
+        // 第一张图片没有显示的部分超过10像素则对齐, 否则要显示更上一张
+        var leading = min.itemLeadingEdge;
+        var height = MediaQuery.of(context).size.height;
+        if (leading < 0 && leading.abs() * height > 10) {
+          jumpTo(min.index);
+        } else {
+          jumpTo(min.index - 1);
+        }
+      } else {
+        jumpTo(_current - 1);
+      }
+    }
+  }
 
   // 和初始化与翻页有关
 
@@ -308,7 +398,10 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
       var event = args.key;
       switch (event) {
         case "UP":
-          if (ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType()) {
+          if (ReaderType.WEB_TOON == currentReaderType() ||
+              ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
+              (ReaderType.WEB_TOON_ZOOM == currentReaderType() &&
+                  currentWebToonScrollMode() == WebToonScrollMode.SCREEN)) {
             _needScrollBackward();
             break;
           }
@@ -317,8 +410,28 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
           }
           break;
         case "DOWN":
-          if (ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType()) {
+          if (ReaderType.WEB_TOON == currentReaderType() ||
+              ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
+              (ReaderType.WEB_TOON_ZOOM == currentReaderType() &&
+                  currentWebToonScrollMode() == WebToonScrollMode.SCREEN)) {
             _needScrollForward();
+            if ((_remainingScrollHeight ?? 10000) < 100) {
+              if (volumeNextChapter()) {
+                final now = DateTime.now().millisecondsSinceEpoch;
+                if (_noticeTime + 3000 > now) {
+                  if (_hasNextEp()) {
+                    _onNextAction();
+                  } else {
+                    defaultToast(context,
+                        tr('components.image_reader.already_at_the_end'));
+                  }
+                } else {
+                  _noticeTime = now;
+                  defaultToast(context,
+                      tr('components.image_reader.click_to_next_chapter'));
+                }
+              }
+            }
             break;
           }
           int point = 1;
@@ -334,29 +447,11 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
                 if (_hasNextEp()) {
                   _onNextAction();
                 } else {
-                  showToast(
-                    tr('components.image_reader.already_at_the_end'),
-                    position: StyledToastPosition.center,
-                    animation: StyledToastAnimation.scale,
-                    reverseAnimation: StyledToastAnimation.fade,
-                    duration: const Duration(seconds: 3),
-                    animDuration: const Duration(milliseconds: 300),
-                    curve: Curves.elasticOut,
-                    reverseCurve: Curves.linear,
-                  );
+                  defaultToast(context, tr('components.image_reader.already_at_the_end'));
                 }
               } else {
                 _noticeTime = now;
-                showToast(
-                  tr('components.image_reader.click_to_next_chapter'),
-                  position: StyledToastPosition.center,
-                  animation: StyledToastAnimation.scale,
-                  reverseAnimation: StyledToastAnimation.fade,
-                  duration: const Duration(seconds: 3),
-                  animDuration: const Duration(milliseconds: 300),
-                  curve: Curves.elasticOut,
-                  reverseCurve: Curves.linear,
-                );
+                defaultToast(context, tr('components.image_reader.click_to_next_chapter'));
               }
             }
           }
@@ -370,7 +465,7 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
   late int _startIndex;
   late int _current;
   late int _slider;
-  late bool _hasNextEpCache;
+  bool? _hasNextEpCache;
 
   void _initCurrent() {
     if (widget.struct.initPosition != null &&
@@ -381,18 +476,6 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
     }
     _current = _startIndex;
     _slider = _startIndex;
-    _updateHasNextEp();
-  }
-
-  void _updateHasNextEp() {
-    _hasNextEpCache =
-        widget.struct.epNameMap.containsKey(widget.struct.epOrder + 1);
-  }
-
-  @override
-  void didUpdateWidget(covariant _ImageReaderContent oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _updateHasNextEp();
   }
 
   void _onCurrentChange(int index) {
@@ -900,7 +983,19 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
     }
   }
 
-  bool _hasNextEp() => _hasNextEpCache;
+  bool _hasNextEp() {
+    if (_hasNextEpCache != null) {
+      return _hasNextEpCache!;
+    }
+    for (var element in widget.struct.epNameMap.keys) {
+      if (element > widget.struct.epOrder) {
+        _hasNextEpCache = true;
+        return true;
+      }
+    }
+    _hasNextEpCache = false;
+    return false;
+  }
 
   double _topBarHeight() => Scaffold.of(context).appBarMaxHeight ?? 0;
 
@@ -1096,8 +1191,9 @@ class _SettingPanelState extends State<_SettingPanel> {
 class _WebToonReaderState extends _ImageReaderContentState {
   var _controllerTime = DateTime.now().millisecondsSinceEpoch + 400;
   late final List<Size?> _trueSizes = [];
-  late final ItemScrollController _itemScrollController;
-  late final ItemPositionsListener _itemPositionsListener;
+  late final zoomable.ItemScrollController _itemScrollController;
+  late final zoomable.ItemPositionsListener _itemPositionsListener;
+  late final zoomable.ScrollOffsetController _scrollOffsetController;
 
   @override
   void initState() {
@@ -1114,10 +1210,21 @@ class _WebToonReaderState extends _ImageReaderContentState {
         _trueSizes.add(null);
       }
     }
-    _itemScrollController = ItemScrollController();
-    _itemPositionsListener = ItemPositionsListener.create();
+    _itemScrollController = zoomable.ItemScrollController();
+    _itemPositionsListener = zoomable.ItemPositionsListener.create();
     _itemPositionsListener.itemPositions.addListener(_onListCurrentChange);
+    _scrollOffsetController = zoomable.ScrollOffsetController();
     super.initState();
+  }
+
+  @override
+  double? get _remainingScrollHeight {
+    try {
+      return _scrollOffsetController.maxScrollExtent -
+          _scrollOffsetController.offset;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
@@ -1127,10 +1234,12 @@ class _WebToonReaderState extends _ImageReaderContentState {
   }
 
   void _onListCurrentChange() {
-    var to = _itemPositionsListener.itemPositions.value.first.index;
-    // 包含一个下一章, 假设5张图片 0,1,2,3,4 length=5, 下一章=5
-    if (to >= 0 && to < widget.struct.images.length) {
-      super._onCurrentChange(to);
+    var positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isNotEmpty) {
+      super._onPositionsChange(positions
+          .map((e) => ImageReaderItemPosition(
+              e.index, e.itemLeadingEdge, e.itemTrailingEdge))
+          .toList());
     }
   }
 
@@ -1153,10 +1262,36 @@ class _WebToonReaderState extends _ImageReaderContentState {
   }
 
   @override
-  void _needScrollForward() {}
+  void _needScrollForward() {
+    _commonWebToonScrollForward(
+      (offset) {
+        _scrollOffsetController.animateScroll(
+          offset: offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      },
+      (index) {
+        _needJumpTo(index, true);
+      },
+    );
+  }
 
   @override
-  void _needScrollBackward() {}
+  void _needScrollBackward() {
+    _commonWebToonScrollBackward(
+      (offset) {
+        _scrollOffsetController.animateScroll(
+          offset: offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      },
+      (index) {
+        _needJumpTo(index, true);
+      },
+    );
+  }
 
   @override
   Widget _buildViewer() {
@@ -1243,7 +1378,9 @@ class _WebToonReaderState extends _ImageReaderContentState {
             ));
           }
         }
-        return ScrollablePositionedList.builder(
+        return zoomable.ZoomablePositionedList.builder(
+          enableZoom: false,
+          scrollOffsetController: _scrollOffsetController,
           initialScrollIndex: super._startIndex,
           scrollDirection:
               widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM
@@ -1264,7 +1401,7 @@ class _WebToonReaderState extends _ImageReaderContentState {
           itemPositionsListener: _itemPositionsListener,
           itemCount: widget.struct.images.length + 1,
           itemBuilder: (BuildContext context, int index) {
-            if (widget.struct.images.length == index) {
+            if (index >= widget.struct.images.length) {
               return _buildNextEp();
             }
             return _images[index];
@@ -1460,6 +1597,7 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
   var _controllerTime = DateTime.now().millisecondsSinceEpoch + 400;
   late final List<Size?> _trueSizes = [];
   late final zoomable.ItemScrollController _itemScrollController;
+  late final zoomable.ScrollOffsetController _scrollOffsetController;
   late final zoomable.ItemPositionsListener _itemPositionsListener;
 
   @override
@@ -1478,6 +1616,7 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
       }
     }
     _itemScrollController = zoomable.ItemScrollController();
+    _scrollOffsetController = zoomable.ScrollOffsetController();
     _itemPositionsListener = zoomable.ItemPositionsListener.create();
     _itemPositionsListener.itemPositions.addListener(_onListCurrentChange);
     super.initState();
@@ -1490,10 +1629,12 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
   }
 
   void _onListCurrentChange() {
-    if (_itemPositionsListener.itemPositions.value.isEmpty) return;
-    var to = _itemPositionsListener.itemPositions.value.first.index;
-    if (to >= 0 && to < widget.struct.images.length) {
-      super._onCurrentChange(to);
+    var positions = _itemPositionsListener.itemPositions.value;
+    if (positions.isNotEmpty) {
+      super._onPositionsChange(positions
+          .map((e) => ImageReaderItemPosition(
+              e.index, e.itemLeadingEdge, e.itemTrailingEdge))
+          .toList());
     }
   }
 
@@ -1516,10 +1657,46 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
   }
 
   @override
-  void _needScrollForward() {}
+  void _needScrollForward() {
+    _commonWebToonScrollForward(
+      (offset) {
+        _scrollOffsetController.animateScroll(
+          offset: offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      },
+      (index) {
+        _needJumpTo(index, true);
+      },
+    );
+  }
 
   @override
-  void _needScrollBackward() {}
+  void _needScrollBackward() {
+    _commonWebToonScrollBackward(
+      (offset) {
+        _scrollOffsetController.animateScroll(
+          offset: offset,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      },
+      (index) {
+        _needJumpTo(index, true);
+      },
+    );
+  }
+
+  @override
+  double? get _remainingScrollHeight {
+    try {
+      return _scrollOffsetController.maxScrollExtent -
+          _scrollOffsetController.offset;
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget _buildViewer() {
@@ -1607,6 +1784,9 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
           minScale: readerZoomMinScale,
           maxScale: readerZoomMaxScale,
           doubleTapScale: readerZoomDoubleTapScale,
+          doubleTapAnimationDuration: noAnimation()
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           enableDoubleTapZoom: widget.fullScreenAction !=
                   FullScreenAction.TOUCH_DOUBLE &&
               widget.fullScreenAction != FullScreenAction.TOUCH_DOUBLE_ONCE_NEXT,
@@ -1624,10 +1804,11 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
                     MediaQuery.of(context).padding.bottom),
           ),
           itemScrollController: _itemScrollController,
+          scrollOffsetController: _scrollOffsetController,
           itemPositionsListener: _itemPositionsListener,
           itemCount: widget.struct.images.length + 1,
           itemBuilder: (BuildContext context, int index) {
-            if (widget.struct.images.length == index) {
+            if (index >= widget.struct.images.length) {
               return _buildNextEp();
             }
             return _images[index];
@@ -1638,6 +1819,9 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
   }
 
   Widget _buildNextEp() {
+    if (super._fullscreenController()) {
+      return Container();
+    }
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.all(20),
@@ -1738,6 +1922,15 @@ class _ListViewReaderState extends _ImageReaderContentState
 
   @override
   void _needScrollBackward() {}
+
+  @override
+  double? get _remainingScrollHeight {
+    if (_scrollController.hasClients) {
+      return _scrollController.position.maxScrollExtent -
+          _scrollController.offset;
+    }
+    return null;
+  }
 
   @override
   Widget _buildViewer() {

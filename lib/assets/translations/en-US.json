@@ -334,8 +334,14 @@
       "right_to_left": "Right to left"
     },
     "reader_scroll_by_screen_percentage": {
-      "title": "Free zoom reader page distance",
+      "title": "Flip distance by distance",
       "screen_size": "Screen size"
+    },
+    "web_toon_scroll_mode": {
+      "title": "WebToon Flip Mode",
+      "choose": "Choose WebToon Flip Mode",
+      "image": "Image",
+      "screen": "Distance"
     },
     "reader_zoom": {
       "out_title": "Zoom out multiplier (min scale)",

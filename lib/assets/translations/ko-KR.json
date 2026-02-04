@@ -334,8 +334,14 @@
       "right_to_left": "오른쪽에서 왼쪽으로"
     },
     "reader_scroll_by_screen_percentage": {
-      "title": "자유 확대 리더 페이지 거리",
+      "title": "거리별 페이지 넘김 길이",
       "screen_size": "화면 크기"
+    },
+    "web_toon_scroll_mode": {
+      "title": "WebToon 페이지 넘김 모드",
+      "choose": "WebToon 페이지 넘김 모드 선택",
+      "image": "이미지",
+      "screen": "거리"
     },
     "reader_zoom": {
       "out_title": "축소 배율 (최소 확대)",

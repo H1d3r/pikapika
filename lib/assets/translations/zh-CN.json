@@ -334,8 +334,14 @@
       "right_to_left": "从右到左"
     },
     "reader_scroll_by_screen_percentage": {
-      "title": "自由放大阅读器翻页距离",
+      "title": "按距离翻页长度",
       "screen_size": "屏幕尺寸"
+    },
+    "web_toon_scroll_mode": {
+      "title": "WebToon 翻页模式",
+      "choose": "选择 WebToon 翻页模式",
+      "image": "图片",
+      "screen": "距离"
     },
     "reader_zoom": {
       "out_title": "缩小倍数（最小缩放）",
