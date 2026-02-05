@@ -7,7 +7,6 @@ import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:pikapika/basic/Common.dart';
@@ -20,6 +19,7 @@ import 'package:pikapika/basic/config/ImageAddress.dart';
 import 'package:pikapika/basic/config/ImageFilter.dart';
 import 'package:pikapika/basic/config/KeyboardController.dart';
 import 'package:pikapika/basic/config/NoAnimation.dart';
+import 'package:pikapika/basic/config/DragRegionLock.dart';
 import 'package:pikapika/basic/config/Quality.dart';
 import 'package:pikapika/basic/config/ReaderDirection.dart';
 import 'package:pikapika/basic/config/ReaderSliderPosition.dart';
@@ -915,9 +915,10 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
   }
 
   Future _onChooseEp() async {
-    showMaterialModalBottomSheet(
+    showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xAA000000),
+      isScrollControlled: true,
       builder: (context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * (.45),
@@ -936,9 +937,10 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
     final currentQuality = currentQualityCode();
     final cReaderSliderPosition = currentReaderSliderPosition();
     //
-    await showMaterialModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xAA000000),
+      isScrollControlled: true,
       builder: (context) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * (.45),
@@ -949,6 +951,7 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
         );
       },
     );
+    setState(() {});
     if (widget.pagerDirection != gReaderDirection ||
         widget.pagerType != currentReaderType() ||
         currentQuality != currentQualityCode() ||
@@ -1065,122 +1068,263 @@ class _SettingPanelState extends State<_SettingPanel> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      padding: const EdgeInsets.all(15),
       children: [
-        Row(
-          children: [
-            _bottomIcon(
-              icon: Icons.crop_sharp,
-              title: gReaderDirectionName(),
-              onPressed: () async {
-                await choosePagerDirection(context);
-                setState(() {});
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.view_day_outlined,
-              title: currentReaderTypeName(),
-              onPressed: () async {
-                await choosePagerType(context);
-                setState(() {});
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.image_aspect_ratio_outlined,
-              title: currentQualityName(),
-              onPressed: () async {
-                await chooseQuality(context);
-                setState(() {});
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.control_camera_outlined,
-              title: currentFullScreenActionName(),
-              onPressed: () async {
-                await chooseFullScreenAction(context);
-                setState(() {});
-              },
-            ),
-          ],
+        _chooseTile(
+          icon: Icons.crop_sharp,
+          title: tr("settings.reader_direction.title"),
+          value: gReaderDirectionName(),
+          onTap: () async {
+            await choosePagerDirection(context);
+            setState(() {});
+          },
         ),
-        Row(
-          children: [
-            _bottomIcon(
-              icon: Icons.share,
-              title: currentAddressName(),
-              onPressed: () async {
-                await chooseAddressAndSwitch(context);
-                setState(() {});
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.image_search,
-              title: currentImageAddressName(),
-              onPressed: () async {
-                await chooseImageAddress(context);
-                setState(() {});
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.network_ping,
-              title: currentUseApiLoadImageName(),
-              onPressed: () {
-                chooseUseApiLoadImage(context);
-              },
-            ),
-            _bottomIcon(
-              icon: Icons.refresh,
-              title: tr('components.image_reader.reload_page'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                widget.onReloadEp();
-              },
-            ),
-          ],
+        _chooseTile(
+          icon: Icons.view_day_outlined,
+          title: tr("settings.reader_type.title"),
+          value: currentReaderTypeName(),
+          onTap: () async {
+            await choosePagerType(context);
+            setState(() {});
+          },
         ),
-        // Row(children: [
-        //   _bottomIcon(
-        //     icon: Icons.file_download,
-        //     title: "下载本作",
-        //     onPressed: widget.onDownload,
-        //   ),
-        // ]),
+        _chooseTile(
+          icon: Icons.image_aspect_ratio_outlined,
+          title: tr("settings.quality.title"),
+          value: currentQualityName(),
+          onTap: () async {
+            await chooseQuality(context);
+            setState(() {});
+          },
+        ),
+        _chooseTile(
+          icon: Icons.control_camera_outlined,
+          title: tr("settings.full_screen_action.title"),
+          value: currentFullScreenActionName(),
+          onTap: () async {
+            await chooseFullScreenAction(context);
+            setState(() {});
+          },
+        ),
+        const Divider(color: Colors.white24),
+        _chooseTile(
+          icon: Icons.swap_vert,
+          title: tr("settings.web_toon_scroll_mode.title"),
+          value: currentWebToonScrollModeName(),
+          onTap: () async {
+            await chooseWebToonScrollMode(context);
+            setState(() {});
+          },
+        ),
+        _sliderTile(
+          icon: Icons.straighten,
+          title: tr("settings.reader_scroll_by_screen_percentage.title"),
+          valueLabel:
+              "${currentReaderScrollByScreenPercentage()}%${tr("settings.reader_scroll_by_screen_percentage.screen_size")}",
+          min: 5,
+          max: 110,
+          divisions: 110 - 5,
+          value: currentReaderScrollByScreenPercentage().toDouble(),
+          onChanged: (v) async {
+            await setReaderScrollByScreenPercentage(v.toInt());
+            setState(() {});
+          },
+        ),
+        const Divider(color: Colors.white24),
+        _sliderTile(
+          icon: Icons.zoom_out_map,
+          title: tr("settings.reader_zoom.out_title"),
+          valueLabel: "${readerZoomMinScale.toStringAsFixed(1)}x",
+          min: 0.1,
+          max: 1.0,
+          divisions: 9,
+          value: readerZoomMinScale.clamp(0.1, 1.0).toDouble(),
+          onChanged: (v) async {
+            final newValue = (v * 10).roundToDouble() / 10;
+            await setReaderZoomMinScale(newValue);
+            setState(() {});
+          },
+        ),
+        _sliderTile(
+          icon: Icons.zoom_in,
+          title: tr("settings.reader_zoom.in_title"),
+          valueLabel: "${readerZoomMaxScale.toStringAsFixed(1)}x",
+          min: 1.0,
+          max: 30.0,
+          divisions: 29,
+          value: readerZoomMaxScale.clamp(1.0, 30.0).toDouble(),
+          onChanged: (v) async {
+            final newValue = v.roundToDouble();
+            await setReaderZoomMaxScale(newValue);
+            setState(() {});
+          },
+        ),
+        _sliderTile(
+          icon: Icons.touch_app,
+          title: tr("settings.reader_zoom.double_tap_title"),
+          valueLabel: "${readerZoomDoubleTapScale.toStringAsFixed(1)}x",
+          min: 1.5,
+          max: 5.0,
+          divisions: 7,
+          value: readerZoomDoubleTapScale.clamp(1.5, 5.0).toDouble(),
+          onChanged: (v) async {
+            final newValue = (v * 2).roundToDouble() / 2;
+            await setReaderZoomDoubleTapScale(newValue);
+            setState(() {});
+          },
+        ),
+        _switchTile(
+          icon: Icons.border_inner,
+          title: tr('settings.drag_region_lock.title'),
+          value: dragRegionLock(),
+          onChanged: (v) async {
+            await setDragRegionLock(v);
+            setState(() {});
+          },
+        ),
+        const Divider(color: Colors.white24),
+        _chooseTile(
+          icon: Icons.share,
+          title: tr('net.address'),
+          value: currentAddressName(),
+          onTap: () async {
+            await chooseAddressAndSwitch(context);
+            setState(() {});
+          },
+        ),
+        _chooseTile(
+          icon: Icons.image_search,
+          title: tr('settings.image_address.title'),
+          value: currentImageAddressName(),
+          onTap: () async {
+            await chooseImageAddress(context);
+            setState(() {});
+          },
+        ),
+        _chooseTile(
+          icon: Icons.network_ping,
+          title: tr('net.use_api_load_image'),
+          value: currentUseApiLoadImageName(),
+          onTap: () async {
+            await chooseUseApiLoadImage(context);
+            setState(() {});
+          },
+        ),
+        const Divider(color: Colors.white24),
+        _switchTile(
+          icon: Icons.access_time_filled_outlined,
+          title: tr('settings.no_animation.title'),
+          value: noAnimation(),
+          onChanged: (v) async {
+            await setNoAnimation(v);
+            setState(() {});
+          },
+        ),
+        _actionTile(
+          icon: Icons.refresh,
+          title: tr('components.image_reader.reload_page'),
+          onTap: () {
+            Navigator.of(context).pop();
+            widget.onReloadEp();
+          },
+        ),
       ],
     );
   }
 
-  Widget _bottomIcon({
+  Widget _chooseTile({
     required IconData icon,
     required String title,
-    required void Function() onPressed,
+    required String value,
+    required FutureOr<void> Function() onTap,
   }) {
-    return Expanded(
-      child: Center(
-        child: Column(
-          children: [
-            IconButton(
-              iconSize: 55,
-              icon: Column(
-                children: [
-                  Container(height: 3),
-                  Icon(
-                    icon,
-                    size: 25,
-                    color: Colors.white,
-                  ),
-                  Container(height: 3),
-                  Text(
-                    title,
-                    style: const TextStyle(color: Colors.white, fontSize: 10),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
-                  Container(height: 3),
-                ],
-              ),
-              onPressed: onPressed,
-            )
-          ],
-        ),
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 100),
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, color: Colors.white70),
+        ],
+      ),
+      onTap: () async => await onTap(),
+    );
+  }
+
+  Widget _actionTile({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      trailing: const Icon(Icons.chevron_right, color: Colors.white70),
+      onTap: onTap,
+    );
+  }
+
+  Widget _switchTile({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required FutureOr<void> Function(bool) onChanged,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      trailing: Switch(
+        value: value,
+        onChanged: (v) async => await onChanged(v),
+        activeColor: Theme.of(context).colorScheme.secondary,
+      ),
+    );
+  }
+
+  Widget _sliderTile({
+    required IconData icon,
+    required String title,
+    required String valueLabel,
+    required double min,
+    required double max,
+    required int divisions,
+    required double value,
+    required FutureOr<void> Function(double) onChanged,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      subtitle: Row(
+        children: [
+          Expanded(
+            child: Slider(
+              min: min,
+              max: max,
+              divisions: divisions,
+              value: value,
+              onChanged: (v) async => await onChanged(v),
+            ),
+          ),
+          SizedBox(
+            width: 50,
+            child: Text(
+              valueLabel,
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1267,7 +1411,9 @@ class _WebToonReaderState extends _ImageReaderContentState {
       (offset) {
         _scrollOffsetController.animateScroll(
           offset: offset,
-          duration: const Duration(milliseconds: 200),
+          duration: noAnimation()
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       },
@@ -1283,7 +1429,9 @@ class _WebToonReaderState extends _ImageReaderContentState {
       (offset) {
         _scrollOffsetController.animateScroll(
           offset: offset,
-          duration: const Duration(milliseconds: 200),
+          duration: noAnimation()
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       },
@@ -1662,7 +1810,9 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
       (offset) {
         _scrollOffsetController.animateScroll(
           offset: offset,
-          duration: const Duration(milliseconds: 200),
+          duration: noAnimation()
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       },
@@ -1678,7 +1828,9 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
       (offset) {
         _scrollOffsetController.animateScroll(
           offset: offset,
-          duration: const Duration(milliseconds: 200),
+          duration: noAnimation()
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
       },
@@ -1781,6 +1933,7 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
           }
         }
         return zoomable.ZoomablePositionedList.builder(
+          dragRegionLock: dragRegionLock(),
           minScale: readerZoomMinScale,
           maxScale: readerZoomMaxScale,
           doubleTapScale: readerZoomDoubleTapScale,
@@ -2146,6 +2299,7 @@ class _GalleryReaderState extends _ImageReaderContentState {
         initialScale: PhotoViewComputedScale.contained,
         minScale: PhotoViewComputedScale.contained * readerZoomMinScale,
         maxScale: PhotoViewComputedScale.contained * readerZoomMaxScale,
+        tightMode: dragRegionLock(),
         errorBuilder: (b, e, s) {
           print("$e,$s");
           return LayoutBuilder(
@@ -2418,6 +2572,7 @@ class _TwoPageGalleryReaderState extends _ImageReaderContentState {
           initialScale: PhotoViewComputedScale.contained,
           minScale: PhotoViewComputedScale.contained * readerZoomMinScale,
           maxScale: PhotoViewComputedScale.contained * readerZoomMaxScale,
+          tightMode: dragRegionLock(),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               return Row(

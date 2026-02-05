@@ -4,32 +4,32 @@ import 'package:flutter/material.dart';
 import '../Common.dart';
 import '../Method.dart';
 
-const _propertyName = "noAnimation";
+const _propertyName = "dragRegionLock";
 
-late bool _noAnimation;
+late bool _dragRegionLock;
 
-Future initNoAnimation() async {
-  _noAnimation = (await method.loadProperty(_propertyName, "false")) == "true";
+Future initDragRegionLock() async {
+  _dragRegionLock = (await method.loadProperty(_propertyName, "true")) == "true";
 }
 
-bool noAnimation() {
-  return _noAnimation;
+bool dragRegionLock() {
+  return _dragRegionLock;
 }
 
-Future<void> setNoAnimation(bool value) async {
+Future<void> setDragRegionLock(bool value) async {
   await method.saveProperty(_propertyName, "$value");
-  _noAnimation = value;
+  _dragRegionLock = value;
 }
 
-Widget noAnimationSetting() {
+Widget dragRegionLockSetting() {
   return StatefulBuilder(
     builder: (BuildContext context, void Function(void Function()) setState) {
       return SwitchListTile(
-        value: _noAnimation,
-        title: Text(tr("settings.no_animation.title")),
+        value: _dragRegionLock,
+        title: Text(tr("settings.drag_region_lock.title")),
         onChanged: (target) async {
           await method.saveProperty(_propertyName, "$target");
-          _noAnimation = target;
+          _dragRegionLock = target;
           setState(() {});
         },
       );

@@ -15,6 +15,30 @@ double get readerZoomMinScale => _readerZoomMinScale;
 double get readerZoomMaxScale => _readerZoomMaxScale;
 double get readerZoomDoubleTapScale => _readerZoomDoubleTapScale;
 
+Future<void> setReaderZoomMinScale(double value) async {
+  _readerZoomMinScale = value;
+  await method.saveProperty(
+    _readerZoomMinPropertyName,
+    value.toStringAsFixed(1),
+  );
+}
+
+Future<void> setReaderZoomMaxScale(double value) async {
+  _readerZoomMaxScale = value;
+  await method.saveProperty(
+    _readerZoomMaxPropertyName,
+    value.toStringAsFixed(1),
+  );
+}
+
+Future<void> setReaderZoomDoubleTapScale(double value) async {
+  _readerZoomDoubleTapScale = value;
+  await method.saveProperty(
+    _readerZoomDoubleTapPropertyName,
+    value.toStringAsFixed(1),
+  );
+}
+
 Future<void> initReaderZoomScale() async {
   _readerZoomMinScale =
       double.tryParse(await method.loadProperty(_readerZoomMinPropertyName, "0.1")) ??
@@ -45,10 +69,7 @@ Widget readerZoomMinScaleSetting() {
             setState(() {
               _readerZoomMinScale = newValue;
             });
-            method.saveProperty(
-              _readerZoomMinPropertyName,
-              newValue.toStringAsFixed(1),
-            );
+            setReaderZoomMinScale(newValue);
           },
         ),
       );
@@ -74,10 +95,7 @@ Widget readerZoomMaxScaleSetting() {
             setState(() {
               _readerZoomMaxScale = newValue;
             });
-            method.saveProperty(
-              _readerZoomMaxPropertyName,
-              newValue.toStringAsFixed(1),
-            );
+            setReaderZoomMaxScale(newValue);
           },
         ),
       );
@@ -103,10 +121,7 @@ Widget readerZoomDoubleTapScaleSetting() {
             setState(() {
               _readerZoomDoubleTapScale = newValue;
             });
-            method.saveProperty(
-              _readerZoomDoubleTapPropertyName,
-              newValue.toStringAsFixed(1),
-            );
+            setReaderZoomDoubleTapScale(newValue);
           },
         ),
       );

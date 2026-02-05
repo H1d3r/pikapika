@@ -14,6 +14,13 @@ Future initReaderScrollByScreenPercentage() async {
 
 double get readerScrollByScreenPercentage => _readerScrollByScreenPercentage / 100;
 
+int currentReaderScrollByScreenPercentage() => _readerScrollByScreenPercentage;
+
+Future<void> setReaderScrollByScreenPercentage(int value) async {
+  _readerScrollByScreenPercentage = value;
+  await method.saveProperty(_propertyName, "$value");
+}
+
 Widget readerScrollByScreenPercentageSetting() {
   return StatefulBuilder(
     builder: (BuildContext context, void Function(void Function()) setState) {
@@ -25,10 +32,8 @@ Widget readerScrollByScreenPercentageSetting() {
           value: _readerScrollByScreenPercentage.toDouble(),
           onChanged: (double value) async {
             final va = value.toInt();
-            await method.loadProperty(_propertyName, "$va");
-            setState(() {
-              _readerScrollByScreenPercentage = va;
-            });
+            await setReaderScrollByScreenPercentage(va);
+            setState(() {});
           },
           divisions: (110 - 5),
         ),
@@ -36,4 +41,3 @@ Widget readerScrollByScreenPercentageSetting() {
     },
   );
 }
-

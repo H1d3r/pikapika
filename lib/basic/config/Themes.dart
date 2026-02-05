@@ -38,7 +38,7 @@ ThemeData _fontThemeData(bool dark) {
   return ThemeData(
     brightness: dark ? Brightness.dark : Brightness.light,
     fontFamily: _fontFamily.isEmpty ? null : _fontFamily.first,
-    //fontFamilyFallback: _fontFamily.length > 1 ? _fontFamily.sublist(1) : null,
+    ////fontFamilyFallback: _fontFamily.length > 1 ? _fontFamily.sublist(1) : null,
   );
 }
 

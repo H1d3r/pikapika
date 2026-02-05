@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:pikapika/i18.dart';
 import 'package:flutter/material.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../Method.dart';
 import '../store/Categories.dart';
@@ -29,40 +28,20 @@ Future<void> initShadowCategories() async {
 }
 
 Future<void> _chooseShadowCategories(BuildContext context) async {
-  var theme1 =  Theme.of(context);
-  await showDialog(
+  final theme = Theme.of(context);
+  final result = await showDialog<List<String>>(
     context: context,
-    builder: (ctx) {
-      var initialValue = <String>[];
-      for (var element in shadowCategories) {
-        if (shadowCategories.contains(element)) {
-          initialValue.add(element);
-        }
-      }
-      return MultiSelectDialog<String>(
-        backgroundColor: theme1.scaffoldBackgroundColor,
-        checkColor: theme1.colorScheme.onSurface,
-        title: Text(tr("settings.shadow_categories.title")),
-        searchHint: tr("settings.shadow_categories.search_hint"),
-        searchable: true,
-        cancelText: Text(tr("app.cancel")),
-        confirmText: Text(tr("app.confirm")),
-        items: storedCategories.map((e) => MultiSelectItem(e, e)).toList(),
-        initialValue: initialValue,
-        onConfirm: (List<String>? value) async {
-          if (value != null) {
-            await _saveShadowCategories(value);
-            shadowCategories = value;
-            shadowCategoriesEvent.broadcast();
-          }
-        },
-        selectedColor: theme1.primaryColor,
-        unselectedColor: theme1.textTheme.bodyMedium?.color,
-        itemsTextStyle: theme1.textTheme.bodyMedium,
-        selectedItemsTextStyle: theme1.textTheme.bodyMedium,
-      );
-    },
+    builder: (ctx) => _ShadowCategoriesDialog(
+      theme: theme,
+      items: storedCategories,
+      initialValue: shadowCategories,
+    ),
   );
+  if (result != null) {
+    await _saveShadowCategories(result);
+    shadowCategories = result;
+    shadowCategoriesEvent.broadcast();
+  }
 }
 
 Widget shadowCategoriesActionButton(BuildContext context) {
@@ -90,3 +69,93 @@ Widget shadowCategoriesSetting() {
 }
 
 const chooseShadowCategories = _chooseShadowCategories;
+
+class _ShadowCategoriesDialog extends StatefulWidget {
+  final ThemeData theme;
+  final List<String> items;
+  final List<String> initialValue;
+
+  const _ShadowCategoriesDialog({
+    required this.theme,
+    required this.items,
+    required this.initialValue,
+  });
+
+  @override
+  State<_ShadowCategoriesDialog> createState() => _ShadowCategoriesDialogState();
+}
+
+class _ShadowCategoriesDialogState extends State<_ShadowCategoriesDialog> {
+  late final Set<String> _selected = {...widget.initialValue};
+  String _query = "";
+
+  @override
+  Widget build(BuildContext context) {
+    final visibleItems = widget.items
+        .where((e) => _query.isEmpty || e.toLowerCase().contains(_query))
+        .toList();
+
+    return AlertDialog(
+      backgroundColor: widget.theme.scaffoldBackgroundColor,
+      title: Text(tr("settings.shadow_categories.title")),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                hintText: tr("settings.shadow_categories.search_hint"),
+              ),
+              onChanged: (v) {
+                setState(() {
+                  _query = v.trim().toLowerCase();
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+            Flexible(
+              child: Scrollbar(
+                thumbVisibility: true,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: visibleItems.length,
+                  itemBuilder: (ctx, index) {
+                    final item = visibleItems[index];
+                    final checked = _selected.contains(item);
+                    return CheckboxListTile(
+                      value: checked,
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: Text(item, style: widget.theme.textTheme.bodyMedium),
+                      activeColor: widget.theme.primaryColor,
+                      onChanged: (v) {
+                        setState(() {
+                          if (v == true) {
+                            _selected.add(item);
+                          } else {
+                            _selected.remove(item);
+                          }
+                        });
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(tr("app.cancel")),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(_selected.toList()),
+          child: Text(tr("app.confirm")),
+        ),
+      ],
+    );
+  }
+}

@@ -348,6 +348,9 @@
       "in_title": "확대 배율 (최대 확대)",
       "double_tap_title": "더블탭 확대 배율"
     },
+    "drag_region_lock": {
+      "title": "드래그 경계 잠금"
+    },
     "reader_slider_position": {
       "title": "슬라이더 위치",
       "choose": "슬라이더 위치 선택",

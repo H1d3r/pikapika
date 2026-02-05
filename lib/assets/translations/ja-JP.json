@@ -348,6 +348,9 @@
       "in_title": "拡大倍率（最大ズーム）",
       "double_tap_title": "ダブルタップズーム倍率"
     },
+    "drag_region_lock": {
+      "title": "ドラッグ境界をロック"
+    },
     "reader_slider_position": {
       "title": "スライダー位置",
       "choose": "スライダー位置を選択",

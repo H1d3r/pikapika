@@ -348,6 +348,9 @@
       "in_title": "放大倍数（最大缩放）",
       "double_tap_title": "双击缩放倍数"
     },
+    "drag_region_lock": {
+      "title": "锁定拖动边界"
+    },
     "reader_slider_position": {
       "title": "滚动条的位置",
       "choose": "选择滑动条位置",

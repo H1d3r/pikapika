@@ -64,6 +64,7 @@ class ZoomablePositionedList extends StatefulWidget {
     this.enableDoubleTapZoom = true,
     this.doubleTapAnimationDuration = const Duration(milliseconds: 200),
     this.enableZoom = true,
+    this.dragRegionLock = false,
   })  : assert(itemCount != null),
         assert(itemBuilder != null),
         itemPositionsNotifier = itemPositionsListener as ItemPositionsNotifier?,
@@ -101,6 +102,7 @@ class ZoomablePositionedList extends StatefulWidget {
     this.enableDoubleTapZoom = true,
     this.doubleTapAnimationDuration = const Duration(milliseconds: 200),
     this.enableZoom = true,
+    this.dragRegionLock = false,
   })  : assert(itemCount != null),
         assert(itemBuilder != null),
         assert(separatorBuilder != null),
@@ -207,6 +209,7 @@ class ZoomablePositionedList extends StatefulWidget {
   final bool enableDoubleTapZoom;
   final Duration doubleTapAnimationDuration;
   final bool enableZoom;
+  final bool dragRegionLock;
 
   @override
   State<StatefulWidget> createState() => _ZoomablePositionedListState();
@@ -507,6 +510,15 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                           (screenWidth / 2) * (1 - targetScale);
                       double maxPan = screenWidth * 2 / 3 -
                           (screenWidth / 2) * (1 - targetScale);
+                      if (widget.dragRegionLock) {
+                        if (targetScale <= 1.0) {
+                          minPan = 0;
+                          maxPan = 0;
+                        } else {
+                          minPan = -(screenWidth / 2) * (targetScale - 1);
+                          maxPan = (screenWidth / 2) * (targetScale - 1);
+                        }
+                      }
                       targetPan = targetPan.clamp(minPan, maxPan);
 
                       targetScroll = currentScroll +
@@ -526,6 +538,15 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                           (screenHeight / 2) * (1 - targetScale);
                       double maxPan = screenHeight * 2 / 3 -
                           (screenHeight / 2) * (1 - targetScale);
+                      if (widget.dragRegionLock) {
+                        if (targetScale <= 1.0) {
+                          minPan = 0;
+                          maxPan = 0;
+                        } else {
+                          minPan = -(screenHeight / 2) * (targetScale - 1);
+                          maxPan = (screenHeight / 2) * (targetScale - 1);
+                        }
+                      }
                       targetPan = targetPan.clamp(minPan, maxPan);
 
                       targetScroll = currentScroll +
@@ -631,6 +652,15 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                     centerX * (1 - newScale);
                 double maxPan =
                     screenWidth * 2 / 3 - centerX * (1 - newScale);
+                if (widget.dragRegionLock) {
+                  if (newScale <= 1.0) {
+                    minPan = 0;
+                    maxPan = 0;
+                  } else {
+                    minPan = -centerX * (newScale - 1);
+                    maxPan = centerX * (newScale - 1);
+                  }
+                }
                 newPan = newPan.clamp(minPan, maxPan);
 
                 // 4. Apply
@@ -668,6 +698,15 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                     centerY * (1 - newScale);
                 double maxPan =
                     screenHeight * 2 / 3 - centerY * (1 - newScale);
+                if (widget.dragRegionLock) {
+                  if (newScale <= 1.0) {
+                    minPan = 0;
+                    maxPan = 0;
+                  } else {
+                    minPan = -centerY * (newScale - 1);
+                    maxPan = centerY * (newScale - 1);
+                  }
+                }
                 newPan = newPan.clamp(minPan, maxPan);
 
                 // 4. Apply

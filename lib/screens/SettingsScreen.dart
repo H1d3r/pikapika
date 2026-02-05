@@ -23,6 +23,7 @@ import 'package:pikapika/basic/config/IgnoreUpgradeConfirm.dart';
 import 'package:pikapika/basic/config/IsPro.dart';
 import 'package:pikapika/basic/config/KeyboardController.dart';
 import 'package:pikapika/basic/config/NoAnimation.dart';
+import 'package:pikapika/basic/config/DragRegionLock.dart';
 import 'package:pikapika/basic/config/PagerAction.dart';
 import 'package:pikapika/basic/config/Quality.dart';
 import 'package:pikapika/basic/config/ReaderBackgroundColor.dart';
@@ -175,6 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 readerZoomMinScaleSetting(),
                 readerZoomMaxScaleSetting(),
                 readerZoomDoubleTapScaleSetting(),
+                dragRegionLockSetting(),
                 const Divider(),
                 volumeControllerSetting(),
                 volumeNextChapterSetting(),

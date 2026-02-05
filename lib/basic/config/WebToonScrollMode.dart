@@ -23,43 +23,52 @@ Future initWebToonScrollMode() async {
 
 WebToonScrollMode currentWebToonScrollMode() => _webToonScrollMode;
 
+String currentWebToonScrollModeName() =>
+    _webToonScrollMode == WebToonScrollMode.SCREEN
+        ? tr("settings.web_toon_scroll_mode.screen")
+        : tr("settings.web_toon_scroll_mode.image");
+
+Future<void> chooseWebToonScrollMode(BuildContext context) async {
+  var result = await showDialog<WebToonScrollMode>(
+    context: context,
+    builder: (BuildContext context) {
+      return SimpleDialog(
+        title: Text(tr("settings.web_toon_scroll_mode.choose")),
+        children: [
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context, WebToonScrollMode.IMAGE);
+            },
+            child: Text(tr("settings.web_toon_scroll_mode.image")),
+          ),
+          SimpleDialogOption(
+            onPressed: () {
+              Navigator.pop(context, WebToonScrollMode.SCREEN);
+            },
+            child: Text(tr("settings.web_toon_scroll_mode.screen")),
+          ),
+        ],
+      );
+    },
+  );
+  if (result != null) {
+    await method.saveProperty(
+      _propertyName,
+      result == WebToonScrollMode.SCREEN ? "1" : "0",
+    );
+    _webToonScrollMode = result;
+  }
+}
+
 Widget webToonScrollModeSetting() {
   return StatefulBuilder(
     builder: (BuildContext context, void Function(void Function()) setState) {
       return ListTile(
         title: Text(tr("settings.web_toon_scroll_mode.title")),
-        subtitle: Text(_webToonScrollMode == WebToonScrollMode.SCREEN
-            ? tr("settings.web_toon_scroll_mode.screen")
-            : tr("settings.web_toon_scroll_mode.image")),
+        subtitle: Text(currentWebToonScrollModeName()),
         onTap: () async {
-          var result = await showDialog<WebToonScrollMode>(
-            context: context,
-            builder: (BuildContext context) {
-              return SimpleDialog(
-                title: Text(tr("settings.web_toon_scroll_mode.choose")),
-                children: [
-                   SimpleDialogOption(
-                    onPressed: () {
-                      Navigator.pop(context, WebToonScrollMode.IMAGE);
-                    },
-                    child: Text(tr("settings.web_toon_scroll_mode.image")),
-                  ),
-                  SimpleDialogOption(
-                    onPressed: () {
-                      Navigator.pop(context, WebToonScrollMode.SCREEN);
-                    },
-                    child: Text(tr("settings.web_toon_scroll_mode.screen")),
-                  ),
-                ],
-              );
-            },
-          );
-          if (result != null) {
-            await method.saveProperty(
-                _propertyName, result == WebToonScrollMode.SCREEN ? "1" : "0");
-            _webToonScrollMode = result;
-            setState(() {});
-          }
+          await chooseWebToonScrollMode(context);
+          setState(() {});
         },
       );
     },

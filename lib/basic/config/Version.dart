@@ -94,7 +94,7 @@ void versionPop(BuildContext context) {
   }
 
   final force = _isForceUpgrade(currentVersion(), latest);
-  if (!force && ignoreUpgradeConfirm) {
+  if (!force || ignoreUpgradeConfirm) {
     return;
   }
 
@@ -117,7 +117,12 @@ class _SemVer {
   const _SemVer(this.major, this.minor, this.patch);
 
   static _SemVer? parse(String input) {
-    final m = RegExp(r'(\\d+)\\.(\\d+)\\.(\\d+)').firstMatch(input);
+    // todo remove first v
+    if (input.startsWith('v')) {
+      input = input.substring(1);
+    }
+    final regExp = RegExp(r'^(\d+)\.(\d+)\.(\d+)$');
+    final m = regExp.firstMatch(input);
     if (m == null) return null;
     return _SemVer(
       int.parse(m.group(1)!),
@@ -125,11 +130,19 @@ class _SemVer {
       int.parse(m.group(3)!),
     );
   }
+
+  @override
+  String toString() {
+    return '$major.$minor.$patch'; 
+  }
 }
 
 bool _isForceUpgrade(String current, String latest) {
+  print("checking force upgrade...");
+  print("current version string: $current, latest version string: $latest");
   final c = _SemVer.parse(current);
   final l = _SemVer.parse(latest);
+  print("current version: $c, latest version: $l");
   if (c == null || l == null) return false;
 
   if (l.major != c.major) return true;
