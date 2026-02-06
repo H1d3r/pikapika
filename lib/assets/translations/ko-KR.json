@@ -351,6 +351,9 @@
     "drag_region_lock": {
       "title": "드래그 경계 잠금"
     },
+    "gesture_speed": {
+      "title": "제스처 속도 배율"
+    },
     "reader_slider_position": {
       "title": "슬라이더 위치",
       "choose": "슬라이더 위치 선택",

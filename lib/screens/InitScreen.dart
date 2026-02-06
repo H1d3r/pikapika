@@ -15,6 +15,7 @@ import 'package:pikapika/basic/config/ChooserRoot.dart';
 import 'package:pikapika/basic/config/ContentFailedReloadAction.dart';
 import 'package:pikapika/basic/config/CopySkipConfirm.dart';
 import 'package:pikapika/basic/config/DragRegionLock.dart';
+import 'package:pikapika/basic/config/GestureSpeed.dart';
 import 'package:pikapika/basic/config/DownloadAndExportPath.dart';
 import 'package:pikapika/basic/config/DownloadThreadCount.dart';
 import 'package:pikapika/basic/config/EBookScrolling.dart';
@@ -152,6 +153,7 @@ class _InitScreenState extends State<InitScreen> {
     await initDownloadThreadCount();
     await initNoAnimation();
     await initDragRegionLock();
+    await initGestureSpeed();
     await initExportRename();
     await initVersion();
     await initUsingRightClickPop();

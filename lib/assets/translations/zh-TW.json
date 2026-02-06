@@ -351,6 +351,9 @@
     "drag_region_lock": {
       "title": "鎖定拖動邊界"
     },
+    "gesture_speed": {
+      "title": "手勢速度倍率"
+    },
     "reader_slider_position": {
       "title": "滾動條的位置",
       "choose": "選擇滑動條位置",

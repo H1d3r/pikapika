@@ -20,6 +20,7 @@ import 'package:pikapika/basic/config/ImageFilter.dart';
 import 'package:pikapika/basic/config/KeyboardController.dart';
 import 'package:pikapika/basic/config/NoAnimation.dart';
 import 'package:pikapika/basic/config/DragRegionLock.dart';
+import 'package:pikapika/basic/config/GestureSpeed.dart';
 import 'package:pikapika/basic/config/Quality.dart';
 import 'package:pikapika/basic/config/ReaderDirection.dart';
 import 'package:pikapika/basic/config/ReaderSliderPosition.dart';
@@ -1182,6 +1183,19 @@ class _SettingPanelState extends State<_SettingPanel> {
             setState(() {});
           },
         ),
+        _sliderTile(
+          icon: Icons.speed,
+          title: tr('settings.gesture_speed.title'),
+          valueLabel: "${currentGestureSpeed().toStringAsFixed(1)}x",
+          min: 0.1,
+          max: 5.0,
+          divisions: 49,
+          value: currentGestureSpeed(),
+          onChanged: (v) async {
+            await setGestureSpeed(v);
+            setState(() {});
+          },
+        ),
         const Divider(color: Colors.white24),
         _chooseTile(
           icon: Icons.share,
@@ -1933,6 +1947,7 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
           }
         }
         return zoomable.ZoomablePositionedList.builder(
+          gestureSpeed: currentGestureSpeed(),
           dragRegionLock: dragRegionLock(),
           minScale: readerZoomMinScale,
           maxScale: readerZoomMaxScale,

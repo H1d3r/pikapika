@@ -65,6 +65,7 @@ class ZoomablePositionedList extends StatefulWidget {
     this.doubleTapAnimationDuration = const Duration(milliseconds: 200),
     this.enableZoom = true,
     this.dragRegionLock = false,
+    this.gestureSpeed = 1.0,
   })  : assert(itemCount != null),
         assert(itemBuilder != null),
         itemPositionsNotifier = itemPositionsListener as ItemPositionsNotifier?,
@@ -103,6 +104,7 @@ class ZoomablePositionedList extends StatefulWidget {
     this.doubleTapAnimationDuration = const Duration(milliseconds: 200),
     this.enableZoom = true,
     this.dragRegionLock = false,
+    this.gestureSpeed = 1.0,
   })  : assert(itemCount != null),
         assert(itemBuilder != null),
         assert(separatorBuilder != null),
@@ -210,6 +212,7 @@ class ZoomablePositionedList extends StatefulWidget {
   final Duration doubleTapAnimationDuration;
   final bool enableZoom;
   final bool dragRegionLock;
+  final double gestureSpeed;
 
   @override
   State<StatefulWidget> createState() => _ZoomablePositionedListState();
@@ -611,7 +614,9 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
               return;
             }
             setState(() {
-              double newScale = (_baseScale * details.scale)
+              double effectiveScaleInput =
+                  pow(details.scale, widget.gestureSpeed).toDouble();
+              double newScale = (_baseScale * effectiveScaleInput)
                   .clamp(widget.minScale, widget.maxScale);
               double scaleDelta = newScale / _scale;
 
@@ -636,14 +641,15 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                 // Actually mathematically derived is s_new for absolute positioning.
                 // Keeping s_new as it matches derivation Y_abs invariant.
                 double scrollChange = distY * (1 / _scale - 1 / newScale) -
-                    details.focalPointDelta.dy / newScale;
+                    (details.focalPointDelta.dy * widget.gestureSpeed) /
+                        newScale;
                 double newScroll = currentScroll + scrollChange;
 
                 // 2. Calculate new Pan Offset (Cross Axis - X)
                 // Pan' = (Fx - Cx)(1-k) + deltaX + k*Pan
                 double distX = details.localFocalPoint.dx - centerX;
                 double newPan = distX * (1 - scaleDelta) +
-                    details.focalPointDelta.dx +
+                    (details.focalPointDelta.dx * widget.gestureSpeed) +
                     scaleDelta * _panOffset;
 
                 // 3. Clamp Pan Offset
@@ -683,13 +689,14 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                     : 0.0;
                 double distX = details.localFocalPoint.dx - centerX;
                 double scrollChange = distX * (1 / _scale - 1 / newScale) -
-                    details.focalPointDelta.dx / newScale;
+                    (details.focalPointDelta.dx * widget.gestureSpeed) /
+                        newScale;
                 double newScroll = currentScroll + scrollChange;
 
                 // 2. Calculate new Pan Offset (Cross Axis - Y)
                 double distY = details.localFocalPoint.dy - centerY;
                 double newPan = distY * (1 - scaleDelta) +
-                    details.focalPointDelta.dy +
+                    (details.focalPointDelta.dy * widget.gestureSpeed) +
                     scaleDelta * _panOffset;
 
                 // 3. Clamp Pan Offset
@@ -770,7 +777,11 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                       alignment: primary.alignment,
                       physics: _scale > 1.0 || _pointers >= 2
                           ? const NeverScrollableScrollPhysics()
-                          : widget.physics,
+                          : (widget.gestureSpeed == 1.0
+                              ? widget.physics
+                              : _SpeedMultiplierPhysics(
+                                  speed: widget.gestureSpeed,
+                                  parent: widget.physics)),
                       shrinkWrap: widget.shrinkWrap,
                       addSemanticIndexes: widget.addSemanticIndexes,
                       semanticChildCount: widget.semanticChildCount,
@@ -802,7 +813,11 @@ class _ZoomablePositionedListState extends State<ZoomablePositionedList>
                         alignment: secondary.alignment,
                         physics: _scale > 1.0 || _pointers >= 2
                             ? const NeverScrollableScrollPhysics()
-                            : widget.physics,
+                            : (widget.gestureSpeed == 1.0
+                                ? widget.physics
+                                : _SpeedMultiplierPhysics(
+                                    speed: widget.gestureSpeed,
+                                    parent: widget.physics)),
                         shrinkWrap: widget.shrinkWrap,
                         addSemanticIndexes: widget.addSemanticIndexes,
                         semanticChildCount: widget.semanticChildCount,
@@ -1013,4 +1028,21 @@ class _ListDisplayDetails {
   double alignment = 0;
 
   final Key key;
+}
+
+class _SpeedMultiplierPhysics extends ScrollPhysics {
+  final double speed;
+
+  const _SpeedMultiplierPhysics({required this.speed, ScrollPhysics? parent})
+      : super(parent: parent);
+
+  @override
+  _SpeedMultiplierPhysics applyTo(ScrollPhysics? ancestor) {
+    return _SpeedMultiplierPhysics(speed: speed, parent: buildParent(ancestor));
+  }
+
+  @override
+  double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
+    return super.applyPhysicsToUserOffset(position, offset) * speed;
+  }
 }

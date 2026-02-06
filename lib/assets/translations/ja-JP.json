@@ -351,6 +351,9 @@
     "drag_region_lock": {
       "title": "ドラッグ境界をロック"
     },
+    "gesture_speed": {
+      "title": "ジェスチャー速度倍率"
+    },
     "reader_slider_position": {
       "title": "スライダー位置",
       "choose": "スライダー位置を選択",

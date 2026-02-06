@@ -351,6 +351,9 @@
     "drag_region_lock": {
       "title": "Lock Drag Boundary"
     },
+    "gesture_speed": {
+      "title": "Gesture Speed Multiplier"
+    },
     "reader_slider_position": {
       "title": "Slider position",
       "choose": "Choose slider position",
