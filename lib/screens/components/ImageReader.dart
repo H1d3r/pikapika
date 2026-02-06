@@ -14,6 +14,9 @@ import 'package:pikapika/basic/Cross.dart';
 import 'package:pikapika/basic/Entities.dart';
 import 'package:pikapika/basic/Method.dart';
 import 'package:pikapika/basic/config/Address.dart';
+import 'package:pikapika/basic/config/AutoFullScreen.dart';
+import 'package:pikapika/basic/config/AutoFullScreenOnForward.dart';
+import 'package:pikapika/basic/config/CategoriesColumnCount.dart';
 import 'package:pikapika/basic/config/FullScreenAction.dart';
 import 'package:pikapika/basic/config/ImageAddress.dart';
 import 'package:pikapika/basic/config/ImageFilter.dart';
@@ -411,6 +414,9 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
           }
           break;
         case "DOWN":
+          if (currentAutoFullScreenOnForward() && !widget.struct.fullScreen) {
+            widget.struct.onFullScreenChange(true);
+          }
           if (ReaderType.WEB_TOON == currentReaderType() ||
               ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
               (ReaderType.WEB_TOON_ZOOM == currentReaderType() &&
@@ -1196,6 +1202,15 @@ class _SettingPanelState extends State<_SettingPanel> {
             setState(() {});
           },
         ),
+        _switchTile(
+          icon: Icons.arrow_downward,
+          title: tr("settings.auto_full_screen_on_forward.title"),
+          value: currentAutoFullScreenOnForward(),
+          onChanged: (v) async {
+            await setAutoFullScreenOnForward(v);
+            setState(() {});
+          },
+        ),
         const Divider(color: Colors.white24),
         _chooseTile(
           icon: Icons.share,
@@ -1352,6 +1367,8 @@ class _WebToonReaderState extends _ImageReaderContentState {
   late final zoomable.ItemScrollController _itemScrollController;
   late final zoomable.ItemPositionsListener _itemPositionsListener;
   late final zoomable.ScrollOffsetController _scrollOffsetController;
+  late final zoomable.ScrollOffsetListener _scrollOffsetListener;
+  StreamSubscription<double>? _scrollOffsetSubscription;
 
   @override
   void initState() {
@@ -1372,7 +1389,17 @@ class _WebToonReaderState extends _ImageReaderContentState {
     _itemPositionsListener = zoomable.ItemPositionsListener.create();
     _itemPositionsListener.itemPositions.addListener(_onListCurrentChange);
     _scrollOffsetController = zoomable.ScrollOffsetController();
+    _scrollOffsetListener = zoomable.ScrollOffsetListener.create();
+    _scrollOffsetSubscription = _scrollOffsetListener.changes.listen(_onScroll);
     super.initState();
+  }
+
+  void _onScroll(double delta) {
+    if (currentAutoFullScreenOnForward() && !widget.struct.fullScreen) {
+      if (delta > 0) {
+        widget.struct.onFullScreenChange(true);
+      }
+    }
   }
 
   @override
@@ -1388,6 +1415,7 @@ class _WebToonReaderState extends _ImageReaderContentState {
   @override
   void dispose() {
     _itemPositionsListener.itemPositions.removeListener(_onListCurrentChange);
+    _scrollOffsetSubscription?.cancel();
     super.dispose();
   }
 
@@ -1543,6 +1571,7 @@ class _WebToonReaderState extends _ImageReaderContentState {
         return zoomable.ZoomablePositionedList.builder(
           enableZoom: false,
           scrollOffsetController: _scrollOffsetController,
+          scrollOffsetListener: _scrollOffsetListener,
           initialScrollIndex: super._startIndex,
           scrollDirection:
               widget.pagerDirection == ReaderDirection.TOP_TO_BOTTOM
@@ -1761,6 +1790,8 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
   late final zoomable.ItemScrollController _itemScrollController;
   late final zoomable.ScrollOffsetController _scrollOffsetController;
   late final zoomable.ItemPositionsListener _itemPositionsListener;
+  late final zoomable.ScrollOffsetListener _scrollOffsetListener;
+  StreamSubscription<double>? _scrollOffsetSubscription;
 
   @override
   void initState() {
@@ -1781,12 +1812,23 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
     _scrollOffsetController = zoomable.ScrollOffsetController();
     _itemPositionsListener = zoomable.ItemPositionsListener.create();
     _itemPositionsListener.itemPositions.addListener(_onListCurrentChange);
+    _scrollOffsetListener = zoomable.ScrollOffsetListener.create();
+    _scrollOffsetSubscription = _scrollOffsetListener.changes.listen(_onScroll);
     super.initState();
+  }
+
+  void _onScroll(double delta) {
+    if (currentAutoFullScreenOnForward() && !widget.struct.fullScreen) {
+      if (delta > 0) {
+        widget.struct.onFullScreenChange(true);
+      }
+    }
   }
 
   @override
   void dispose() {
     _itemPositionsListener.itemPositions.removeListener(_onListCurrentChange);
+    _scrollOffsetSubscription?.cancel();
     super.dispose();
   }
 
@@ -1949,6 +1991,7 @@ class _WebToonZoomReaderState extends _ImageReaderContentState {
         return zoomable.ZoomablePositionedList.builder(
           gestureSpeed: currentGestureSpeed(),
           dragRegionLock: dragRegionLock(),
+          scrollOffsetListener: _scrollOffsetListener,
           minScale: readerZoomMinScale,
           maxScale: readerZoomMaxScale,
           doubleTapScale: readerZoomDoubleTapScale,
@@ -2025,9 +2068,11 @@ class _ListViewReaderState extends _ImageReaderContentState
     duration: const Duration(milliseconds: 100),
   );
   late final _scrollController = ScrollController();
+  double _lastScrollOffset = 0;
 
   @override
   void initState() {
+    _scrollController.addListener(_onScroll);
     for (var e in widget.struct.images) {
       if (e.pkzFile != null &&
           e.width != null &&
@@ -2042,6 +2087,16 @@ class _ListViewReaderState extends _ImageReaderContentState
       }
     }
     super.initState();
+  }
+
+  void _onScroll() {
+    var offset = _scrollController.offset;
+    if (currentAutoFullScreenOnForward() && !widget.struct.fullScreen) {
+      if (offset > _lastScrollOffset) {
+        widget.struct.onFullScreenChange(true);
+      }
+    }
+    _lastScrollOffset = offset;
   }
 
   @override
@@ -2414,6 +2469,11 @@ class _GalleryReaderState extends _ImageReaderContentState {
   }
 
   void _onGalleryPageChange(int to) {
+    if (to > super._current &&
+        currentAutoFullScreenOnForward() &&
+        !widget.struct.fullScreen) {
+      widget.struct.onFullScreenChange(true);
+    }
     for (var i = to; i < to + 3 && i < ips.length; i++) {
       final ip = ips[i];
       precacheImage(ip, context);
@@ -2709,6 +2769,11 @@ class _TwoPageGalleryReaderState extends _ImageReaderContentState {
 
   void _onGalleryPageChange(int to) {
     var toIndex = to * 2;
+    if (toIndex > super._current &&
+        currentAutoFullScreenOnForward() &&
+        !widget.struct.fullScreen) {
+      widget.struct.onFullScreenChange(true);
+    }
     // 提前加载
     for (var i = toIndex + 2; i < toIndex + 5 && i < ips.length; i++) {
       final ip = ips[i];

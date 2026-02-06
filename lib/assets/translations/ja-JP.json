@@ -218,6 +218,9 @@
     "auto_full_screen": {
       "title": "リーダーに入ったら自動フルスクリーン"
     },
+    "auto_full_screen_on_forward": {
+      "title": "前へ進むときに自動全画面表示"
+    },
     "ignore_info_history": {
       "title": "詳細ページの履歴記録を除外"
     },

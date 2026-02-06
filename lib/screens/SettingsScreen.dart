@@ -7,6 +7,7 @@ import 'package:pikapika/basic/config/AndroidDisplayMode.dart';
 import 'package:pikapika/basic/config/AndroidSecureFlag.dart';
 import 'package:pikapika/basic/config/AutoClean.dart';
 import 'package:pikapika/basic/config/AutoFullScreen.dart';
+import 'package:pikapika/basic/config/AutoFullScreenOnForward.dart';
 import 'package:pikapika/basic/config/ChooserRoot.dart';
 import 'package:pikapika/basic/config/ContentFailedReloadAction.dart';
 import 'package:pikapika/basic/config/CopySkipConfirm.dart';
@@ -171,6 +172,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 readerDirectionSetting(),
                 readerSliderPositionSetting(),
                 autoFullScreenSetting(),
+                autoFullScreenOnForwardSetting(),
                 fullScreenActionSetting(),
                 webToonScrollModeSetting(),
                 readerScrollByScreenPercentageSetting(),

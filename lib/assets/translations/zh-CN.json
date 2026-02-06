@@ -222,6 +222,9 @@
     "auto_full_screen": {
       "title": "进入阅读器自动全屏"
     },
+    "auto_full_screen_on_forward": {
+      "title": "前进时自动全屏"
+    },
     "ignore_info_history": {
       "title": "详情页不计入历史记录"
     },

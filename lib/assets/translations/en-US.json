@@ -221,6 +221,9 @@
     },
     "auto_full_screen": {
       "title": "Enter reader automatically full screen"
+    },
+    "auto_full_screen_on_forward": {
+      "title": "Auto Fullscreen on Forward"
     }, 
     "ignore_info_history": {
       "title": "Ignore info history"

@@ -218,6 +218,9 @@
     "auto_full_screen": {
       "title": "進入閱讀器自動全屏"
     },
+    "auto_full_screen_on_forward": {
+      "title": "前進時自動全螢幕"
+    },
     "ignore_info_history": {
       "title": "詳情頁不計入歷史記錄"
     },

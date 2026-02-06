@@ -10,6 +10,7 @@ import 'package:pikapika/basic/config/AppOrientation.dart';
 import 'package:pikapika/basic/config/Authentication.dart';
 import 'package:pikapika/basic/config/AutoClean.dart';
 import 'package:pikapika/basic/config/AutoFullScreen.dart';
+import 'package:pikapika/basic/config/AutoFullScreenOnForward.dart';
 import 'package:pikapika/basic/config/CategoriesColumnCount.dart';
 import 'package:pikapika/basic/config/ChooserRoot.dart';
 import 'package:pikapika/basic/config/ContentFailedReloadAction.dart';
@@ -135,6 +136,7 @@ class _InitScreenState extends State<InitScreen> {
     await initReaderDirection();
     await initReaderSliderPosition();
     await initAutoFullScreen();
+    await initAutoFullScreenOnForward();
     await initFullScreenAction();
     await initPagerAction();
     await initShadowCategoriesMode();
