@@ -241,8 +241,8 @@ class _ImageReaderContent extends StatefulWidget {
         return _WebToonZoomReaderState();
       case ReaderType.GALLERY:
         return _GalleryReaderState();
-      case ReaderType.WEB_TOON_FREE_ZOOM:
-        return _ListViewReaderState();
+      // case ReaderType.WEB_TOON_FREE_ZOOM:
+      //   return _ListViewReaderState();
       case ReaderType.TWO_PAGE_GALLERY:
         return _TwoPageGalleryReaderState();
       default:
@@ -403,7 +403,7 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
       switch (event) {
         case "UP":
           if (ReaderType.WEB_TOON == currentReaderType() ||
-              ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
+              // ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
               (ReaderType.WEB_TOON_ZOOM == currentReaderType() &&
                   currentWebToonScrollMode() == WebToonScrollMode.SCREEN)) {
             _needScrollBackward();
@@ -418,7 +418,7 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
             widget.struct.onFullScreenChange(true);
           }
           if (ReaderType.WEB_TOON == currentReaderType() ||
-              ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
+              // ReaderType.WEB_TOON_FREE_ZOOM == currentReaderType() ||
               (ReaderType.WEB_TOON_ZOOM == currentReaderType() &&
                   currentWebToonScrollMode() == WebToonScrollMode.SCREEN)) {
             _needScrollForward();
@@ -566,9 +566,10 @@ abstract class _ImageReaderContentState extends State<_ImageReaderContent> {
                         Container(width: 10),
                         Expanded(
                           child:
-                              widget.pagerType != ReaderType.WEB_TOON_FREE_ZOOM
-                                  ? _buildSliderBottom()
-                                  : Container(),
+                          //widget.pagerType != ReaderType.WEB_TOON_FREE_ZOOM
+                            //      ?
+                              _buildSliderBottom()
+                              //    : Container(),
                         ),
                         Container(width: 10),
                         IconButton(

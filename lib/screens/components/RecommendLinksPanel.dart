@@ -37,16 +37,13 @@ class _RecommendLinksPanelState extends State<RecommendLinksPanel> {
     if (links.isEmpty) {
       return const SizedBox.shrink();
     }
-    return Padding(
-      padding: widget.padding,
+    return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Divider(),
           ...links.entries.map((entry) {
             return ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
               title: Text(entry.key),
               onTap: () => openUrl(entry.value),
             );

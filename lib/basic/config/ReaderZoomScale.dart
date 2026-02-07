@@ -41,8 +41,8 @@ Future<void> setReaderZoomDoubleTapScale(double value) async {
 
 Future<void> initReaderZoomScale() async {
   _readerZoomMinScale =
-      double.tryParse(await method.loadProperty(_readerZoomMinPropertyName, "0.1")) ??
-          0.1;
+      double.tryParse(await method.loadProperty(_readerZoomMinPropertyName, "1.0")) ??
+          1.0;
   _readerZoomMaxScale =
       double.tryParse(await method.loadProperty(_readerZoomMaxPropertyName, "2.0")) ??
           2.0;

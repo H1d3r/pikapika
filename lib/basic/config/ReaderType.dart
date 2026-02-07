@@ -8,7 +8,7 @@ enum ReaderType {
   WEB_TOON,
   WEB_TOON_ZOOM,
   GALLERY,
-  WEB_TOON_FREE_ZOOM,
+  // WEB_TOON_FREE_ZOOM,
   TWO_PAGE_GALLERY,
 }
 
@@ -58,7 +58,7 @@ Future<dynamic> initReaderType() async {
     tr("settings.reader_type.web_toon"): ReaderType.WEB_TOON,
     tr("settings.reader_type.web_toon_zoom"): ReaderType.WEB_TOON_ZOOM,
     tr("settings.reader_type.gallery"): ReaderType.GALLERY,
-    tr("settings.reader_type.web_toon_free_zoom"): ReaderType.WEB_TOON_FREE_ZOOM,
+    // tr("settings.reader_type.web_toon_free_zoom"): ReaderType.WEB_TOON_FREE_ZOOM,
     tr("settings.reader_type.two_page_gallery"): ReaderType.TWO_PAGE_GALLERY,
   });
   _readerType = _readerTypeFromString(
