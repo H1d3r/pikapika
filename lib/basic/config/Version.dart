@@ -1,5 +1,4 @@
 import 'dart:async' show Future;
-import 'dart:convert';
 import 'package:event/event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -9,16 +8,12 @@ import 'package:pikapika/basic/Cross.dart';
 import '../Method.dart';
 import 'IgnoreUpgradeConfirm.dart';
 
-const repoOwnerUrl =
-    "https://api.github.com/repos/ComicSparks/glxx/releases/tags/pikapika";
-const _releasesUrl = "https://github.com/OWNER/pikapika/releases";
-const _versionUrl =
-    "https://api.github.com/repos/OWNER/pikapika/releases/latest";
 const _versionAssets = 'lib/assets/version.txt';
 
 late String _version;
 String? _latestVersion;
 String? _latestVersionInfo;
+String? _downloadUrl;
 
 Future initVersion() async {
   // 当前版本
@@ -41,6 +36,10 @@ String? latestVersion() {
 
 String? latestVersionInfo() {
   return _latestVersionInfo;
+}
+
+String? downloadUrl() {
+  return _downloadUrl;
 }
 
 Future autoCheckNewVersion() {
@@ -67,18 +66,13 @@ bool dirtyVersion() {
 // maybe exception
 Future _versionCheck() async {
   if (!dirtyVersion()) {
-    // 检查更新只能使用defaultHttpClient, 而不能使用pika的client, 否则会 "tls handshake failure"
-    var owner =
-        jsonDecode(await method.defaultHttpClientGet(repoOwnerUrl))["body"]
-            .toString()
-            .trim();
-    var json = jsonDecode(await method
-        .defaultHttpClientGet(_versionUrl.replaceAll("OWNER", owner)));
-    if (json["name"] != null) {
-      String latestVersion = (json["name"]);
+    var config = await method.appConfig();
+    if (config["latestVersion"] != null) {
+      String latestVersion = config["latestVersion"];
       if (latestVersion != _version) {
         _latestVersion = latestVersion;
-        _latestVersionInfo = json["body"] ?? "";
+        _latestVersionInfo = config["changeLog"] ?? "";
+        _downloadUrl = config["downloadUrl"];
       }
     }
   } // else dirtyVersion
@@ -152,13 +146,11 @@ bool _isForceUpgrade(String current, String latest) {
 
 Future<void> _openRelease() async {
   try {
-    final owner =
-        jsonDecode(await method.defaultHttpClientGet(repoOwnerUrl))["body"]
-            .toString()
-            .trim();
-    await openUrl(_releasesUrl.replaceAll("OWNER", owner));
+    if (_downloadUrl != null && _downloadUrl!.isNotEmpty) {
+      await openUrl(_downloadUrl!);
+    }
   } catch (_) {
-    // ignore
+    defaultToast(context, "下载失败");
   }
 }
 

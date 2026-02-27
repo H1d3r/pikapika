@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:pikapika/i18.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +10,6 @@ import '../basic/Method.dart';
 import '../basic/config/IsPro.dart';
 import 'components/ListView.dart';
 import 'components/RightClickPop.dart';
-
-const repoOwnerUrl = "https://api.github.com/repos/ComicSparks/glxx/releases/tags/pikapika";
-const _releasesUrl = "https://github.com/OWNER/pikapika/releases";
 
 // 关于
 class AboutScreen extends StatefulWidget {
@@ -200,8 +195,10 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Future _openRelease() async {
-    var owner = jsonDecode(await method.defaultHttpClientGet(repoOwnerUrl))["body"].toString().trim();
-    openUrl(_releasesUrl.replaceAll("OWNER", owner));
+    var url = downloadUrl();
+    if (url != null && url.isNotEmpty) {
+      await openUrl(url);
+    }
   }
 
   Widget _buildNewVersionInfo(String? latestVersionInfo) {

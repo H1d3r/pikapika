@@ -41,6 +41,16 @@ class Method {
     return decoded.map((key, value) => MapEntry("$key", "$value"));
   }
 
+  /// 应用配置（版本信息、下载地址等）
+  Future<Map<String, dynamic>> appConfig() async {
+    final rsp = await _flatInvoke("appConfig", "");
+    final decoded = jsonDecode(rsp);
+    if (decoded is! Map) {
+      return {};
+    }
+    return Map<String, dynamic>.from(decoded);
+  }
+
   /// 保存配置文件
   Future<dynamic> saveProperty(String propertyName, String value) {
     return _flatInvoke("saveProperty", {
