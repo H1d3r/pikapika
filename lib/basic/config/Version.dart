@@ -99,7 +99,9 @@ void versionPop(BuildContext context) {
     force ? "发现新版本 $latest，请立即更新后继续使用" : "发现新版本 $latest，建议更新",
     force: force,
     primaryText: "去下载",
-    onPrimary: _openRelease,
+    onPrimary: () async {
+      _openRelease(context);
+    },
   );
 }
 
@@ -144,7 +146,7 @@ bool _isForceUpgrade(String current, String latest) {
   return false;
 }
 
-Future<void> _openRelease() async {
+Future<void> _openRelease(BuildContext context) async {
   try {
     if (_downloadUrl != null && _downloadUrl!.isNotEmpty) {
       await openUrl(_downloadUrl!);

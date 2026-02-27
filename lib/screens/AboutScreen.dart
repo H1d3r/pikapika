@@ -6,8 +6,6 @@ import 'package:pikapika/basic/Cross.dart';
 import 'package:pikapika/basic/config/Version.dart';
 import 'package:pikapika/screens/components/Badge.dart';
 
-import '../basic/Method.dart';
-import '../basic/config/IsPro.dart';
 import 'components/ListView.dart';
 import 'components/RightClickPop.dart';
 
