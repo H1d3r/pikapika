@@ -69,7 +69,7 @@ Future _versionCheck() async {
     var config = await method.appConfig();
     if (config["latestVersion"] != null) {
       String latestVersion = config["latestVersion"];
-      if (latestVersion != _version) {
+      if (latestVersion != _version && _isServerNewer(_version, latestVersion)) {
         _latestVersion = latestVersion;
         _latestVersionInfo = config["changeLog"] ?? "";
         _downloadUrl = config["downloadUrl"];
@@ -77,6 +77,15 @@ Future _versionCheck() async {
     }
   } // else dirtyVersion
   versionEvent.broadcast();
+}
+
+bool _isServerNewer(String current, String latest) {
+  final c = _SemVer.parse(current);
+  final l = _SemVer.parse(latest);
+  if (c == null || l == null) return false;
+  if (l.major != c.major) return l.major > c.major;
+  if (l.minor != c.minor) return l.minor > c.minor;
+  return l.patch > c.patch;
 }
 
 var _display = true;
