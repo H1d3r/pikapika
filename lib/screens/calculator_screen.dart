@@ -528,7 +528,7 @@ class ContentBodyState extends State<ContentBody> {
 
 //  计算点击
   btnclick(e) {
-    if (sums == "21582158884") {
+    if (sums == "77554422") {
       firstPassed().then((value) {
         Navigator.pushReplacement(context, MaterialPageRoute(
           builder: (BuildContext context) {
