@@ -9,6 +9,9 @@ import 'package:pikapika/basic/config/AndroidSecureFlag.dart';
 import 'package:pikapika/basic/config/AppOrientation.dart';
 import 'package:pikapika/basic/config/Authentication.dart';
 import 'package:pikapika/basic/config/AutoClean.dart';
+import 'package:pikapika/basic/config/AutoDeleteDownloadOnUnfavorite.dart';
+import 'package:pikapika/basic/config/AutoDownloadOnFavorite.dart';
+import 'package:pikapika/basic/config/DisableAutoDownloadOnMobile.dart';
 import 'package:pikapika/basic/config/AutoFullScreen.dart';
 import 'package:pikapika/basic/config/AutoFullScreenOnForward.dart';
 import 'package:pikapika/basic/config/CategoriesColumnCount.dart';
@@ -191,6 +194,9 @@ class _InitScreenState extends State<InitScreen> {
     await initIgnoreInfoHistory();
     await initThreeKeepRight();
     await initCopyFullNameTemplate();
+    await initAutoDownloadOnFavorite();
+    await initDisableAutoDownloadOnMobile();
+    await initAutoDeleteDownloadOnUnfavorite();
     await initPassed();
     await initRecommendLinks();
     if (!currentPassed()) {

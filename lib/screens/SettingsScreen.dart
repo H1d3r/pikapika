@@ -6,6 +6,9 @@ import 'package:pikapika/basic/Common.dart';
 import 'package:pikapika/basic/config/AndroidDisplayMode.dart';
 import 'package:pikapika/basic/config/AndroidSecureFlag.dart';
 import 'package:pikapika/basic/config/AutoClean.dart';
+import 'package:pikapika/basic/config/AutoDeleteDownloadOnUnfavorite.dart';
+import 'package:pikapika/basic/config/AutoDownloadOnFavorite.dart';
+import 'package:pikapika/basic/config/DisableAutoDownloadOnMobile.dart';
 import 'package:pikapika/basic/config/AutoFullScreen.dart';
 import 'package:pikapika/basic/config/AutoFullScreenOnForward.dart';
 import 'package:pikapika/basic/config/ChooserRoot.dart';
@@ -197,6 +200,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: const Icon(Icons.download),
               title: Text(tr('settings.download')),
               children: [
+                const Divider(),
+                autoDownloadOnFavoriteSetting(),
+                disableAutoDownloadOnMobileSetting(),
+                autoDeleteDownloadOnUnfavoriteSetting(),
                 const Divider(),
                 ListTile(
                   title: Text(tr('settings.web_server')),

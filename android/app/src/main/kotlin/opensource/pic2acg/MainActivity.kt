@@ -4,6 +4,8 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.biometrics.BiometricPrompt
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.*
 import android.provider.MediaStore
 import android.util.Log
@@ -109,6 +111,19 @@ class MainActivity : FlutterActivity() {
                     else -> {
                         notImplementedToken
                     }
+                }
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "network"
+        ).setMethodCallHandler { call, result ->
+            result.withCoroutine {
+                when (call.method) {
+                    "getNetworkType" -> getNetworkType()
+                    "getIsMobile" -> isMobileNetwork()
+                    else -> notImplementedToken
                 }
             }
         }
@@ -430,5 +445,55 @@ class MainActivity : FlutterActivity() {
         if (!dir.exists()) {
             dir.mkdirs()
         }
+    }
+
+    private fun getNetworkType(): String {
+        val ctx = context ?: return "none"
+        val cm = ctx.getSystemService(ConnectivityManager::class.java) ?: return "none"
+        val active = cm.activeNetwork ?: return "none"
+        val caps = cm.getNetworkCapabilities(active) ?: return "none"
+        return when {
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "mobile"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "ethernet"
+            caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> findNonVpnTransport(cm) ?: "vpn"
+            else -> "other"
+        }
+    }
+
+    private fun isMobileNetwork(): Boolean {
+        val ctx = context ?: return false
+        val cm = ctx.getSystemService(ConnectivityManager::class.java) ?: return false
+        val active = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(active) ?: return false
+        if (caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            return true
+        }
+        if (caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+            return findNonVpnTransport(cm) == "mobile"
+        }
+        return false
+    }
+
+    private fun findNonVpnTransport(cm: ConnectivityManager): String? {
+        for (network in cm.allNetworks) {
+            val caps = cm.getNetworkCapabilities(network) ?: continue
+            if (!caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                continue
+            }
+            if (caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                continue
+            }
+            if (caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return "mobile"
+            }
+            if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return "wifi"
+            }
+            if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return "ethernet"
+            }
+        }
+        return null
     }
 }

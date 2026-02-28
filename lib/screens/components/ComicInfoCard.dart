@@ -4,10 +4,14 @@ import 'package:pikapika/i18.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pikapika/basic/Cross.dart';
+import 'package:pikapika/basic/Common.dart';
 import 'package:pikapika/basic/Entities.dart';
 import 'package:pikapika/basic/Method.dart';
+import 'package:pikapika/basic/config/AutoDeleteDownloadOnUnfavorite.dart';
+import 'package:pikapika/basic/config/AutoDownloadOnFavorite.dart';
 import 'package:pikapika/basic/config/CopyFullName.dart';
 import 'package:pikapika/basic/config/CopyFullNameTemplate.dart';
+import 'package:pikapika/basic/config/DisableAutoDownloadOnMobile.dart';
 import 'package:pikapika/basic/config/HideOnlineFavorite.dart';
 import 'package:pikapika/basic/config/IsPro.dart';
 import 'package:pikapika/basic/config/WebDav.dart';
@@ -15,6 +19,7 @@ import 'package:pikapika/screens/SearchAuthorScreen.dart';
 import 'package:pikapika/basic/Navigator.dart';
 import '../ComicsScreen.dart';
 import 'Images.dart';
+import 'package:pikapika/basic/connect.dart';
 
 // 漫画卡片
 class ComicInfoCard extends StatefulWidget {
@@ -344,13 +349,56 @@ class _ComicInfoCard extends State<ComicInfoCard> {
     });
     try {
       var rst = await method.switchFavourite(widget.info.id);
+      final isNowFavourite = !rst.startsWith("un");
       setState(() {
-        (widget.info as ComicInfo).isFavourite = !rst.startsWith("un");
+        (widget.info as ComicInfo).isFavourite = isNowFavourite;
       });
+      if (isNowFavourite) {
+        await _maybeAutoDownloadOnFavorite();
+      } else {
+        await _maybeAutoDeleteOnUnfavorite();
+      }
     } finally {
       setState(() {
         _favouriteLoading = false;
       });
+    }
+  }
+
+  Future<void> _maybeAutoDownloadOnFavorite() async {
+    if (!autoDownloadOnFavorite()) {
+      return;
+    }
+    if (!isPro) {
+      defaultToast(context, tr('app.pro_required'));
+      return;
+    }
+    try {
+      if (disableAutoDownloadOnMobile() && await isMobileNetwork()) {
+        return;
+      }
+      await method.downloadAll([widget.info.id]);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('local_favorite.download_failed'))),
+        );
+      }
+    }
+  }
+
+  Future<void> _maybeAutoDeleteOnUnfavorite() async {
+    if (!autoDeleteDownloadOnUnfavorite()) {
+      return;
+    }
+    try {
+      await method.deleteDownloadComic(widget.info.id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(tr('local_favorite.remove_failed'))),
+        );
+      }
     }
   }
 

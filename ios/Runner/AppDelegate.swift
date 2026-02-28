@@ -2,25 +2,34 @@ import UIKit
 import Flutter
 import Mobile
 import LocalAuthentication
+import Network
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    
+
+    private let networkMonitor = NWPathMonitor()
+    private var latestPath: NWPath?
+
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        
+
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         let applicationSupportsPath = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true)[0]
 
         MobileMigration(documentsPath, applicationSupportsPath)
         MobileInitApplication(applicationSupportsPath)
 
-        
+        let monitorQueue = DispatchQueue(label: "network.monitor")
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            self?.latestPath = path
+        }
+        networkMonitor.start(queue: monitorQueue)
+
         let controller = self.window.rootViewController as! FlutterViewController
         let channel = FlutterMethodChannel.init(name: "method", binaryMessenger: controller as! FlutterBinaryMessenger)
-        
+
         channel.setMethodCallHandler { (call, result) in
             Thread {
                 if call.method == "flatInvoke" {
@@ -53,22 +62,22 @@ import LocalAuthentication
                 else if call.method == "iosSaveFileToImage"{
                     if let args = call.arguments as? Dictionary<String, Any>,
                        let path = args["path"] as? String{
-                        
+
                         do {
                             let fileURL: URL = URL(fileURLWithPath: path)
                                 let imageData = try Data(contentsOf: fileURL)
-                            
+
                             if let uiImage = UIImage(data: imageData) {
                                 UIImageWriteToSavedPhotosAlbum(uiImage, nil, nil, nil)
                                 result("OK")
                             }else{
                                 result(FlutterError(code: "", message: "Error loading image ", details: ""))
                             }
-                            
+
                         } catch {
                                 result(FlutterError(code: "", message: "Error loading image : \(error)", details: ""))
                         }
-                        
+
                     }else{
                         result(FlutterError(code: "", message: "params error", details: ""))
                     }
@@ -87,7 +96,37 @@ import LocalAuthentication
                 }
             }.start()
         }
-        
+
+        let networkChannel = FlutterMethodChannel(name: "network", binaryMessenger: controller as! FlutterBinaryMessenger)
+        networkChannel.setMethodCallHandler { [weak self] call, result in
+            let path = self?.latestPath ?? self?.networkMonitor.currentPath
+            guard let path = path, path.status == .satisfied else {
+                result(call.method == "getIsMobile" ? false : "none")
+                return
+            }
+            if call.method == "getIsMobile" {
+                result(path.usesInterfaceType(.cellular))
+                return
+            }
+            guard call.method == "getNetworkType" else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
+            if path.usesInterfaceType(.wifi) {
+                result("wifi")
+                return
+            }
+            if path.usesInterfaceType(.cellular) {
+                result("mobile")
+                return
+            }
+            if path.usesInterfaceType(.wiredEthernet) {
+                result("ethernet")
+                return
+            }
+            result("other")
+        }
+
         //
         let eventChannel = FlutterEventChannel.init(name: "flatEvent", binaryMessenger: controller as! FlutterBinaryMessenger)
         
@@ -127,4 +166,3 @@ import LocalAuthentication
 
 var sink : FlutterEventSink?
 let mutex = NSObject.init()
-
